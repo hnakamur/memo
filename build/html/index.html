@@ -76,30 +76,30 @@
 <h2>Chocolateyのインストール<a class="headerlink" href="#chocolatey" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><a class="reference external" href="https://chocolatey.org/docs/installation#installing-chocolatey">Installing Chocolatey</a> の手順に従ってChocolateyをインストールします。
 管理者権限でPowerShellを起動して以下のコマンドを実行します（コマンドが長くて折り返して表示されているかもしれませんが、一行のコマンドです）。</p>
-<div class="highlight-PowerShell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span><span class="p">;</span> <span class="n">iex</span> <span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span><span class="p">;</span> <span class="n">iex</span> <span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>PowerShellの実行ポリシーをUndefinedに変更します。</p>
-<div class="highlight-PowerShell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-ExecutionPolicy</span> <span class="n">Undefined</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-ExecutionPolicy</span> <span class="n">Undefined</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">注釈</p>
 <p>PowerShellの実行ポリシーの確認</p>
 <p>変更後の状態は以下のコマンドで確認できます。</p>
-<div class="highlight-PowerShell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-List</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-List</span>
 </pre></div>
 </div>
 <p>実行ポリシー確認の実行例です。</p>
-<div class="last highlight-PowerShell notranslate"><div class="highlight"><pre><span></span>PS C:\windows\system32&gt; Get-ExecutionPolicy -List
+<div class="last highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\windows\system32&gt; Get-ExecutionPolicy -List</span>
 
-        Scope ExecutionPolicy
-        ----- ---------------
-MachinePolicy       Undefined
-   UserPolicy       Undefined
-      Process          Bypass
-  CurrentUser       Undefined
- LocalMachine       Undefined
+<span class="go">        Scope ExecutionPolicy</span>
+<span class="go">        ----- ---------------</span>
+<span class="go">MachinePolicy       Undefined</span>
+<span class="go">   UserPolicy       Undefined</span>
+<span class="go">      Process          Bypass</span>
+<span class="go">  CurrentUser       Undefined</span>
+<span class="go"> LocalMachine       Undefined</span>
 </pre></div>
 </div>
 </div>
@@ -108,20 +108,20 @@ MachinePolicy       Undefined
 <h2>Python, make, PlantUMLのインストール<a class="headerlink" href="#python-make-plantuml" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>以下の3つのコマンドを実行してpython3, make, PlantUMLをインストールします（依存関係でjre8やGraphVizもインストールされます）。
 途中何回か確認されますので <code class="code docutils literal notranslate"><span class="pre">y</span></code> を押して進んでください。</p>
-<div class="highlight-PowerShell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">python3</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">python3</span>
 <span class="n">choco</span> <span class="n">install</span> <span class="n">make</span>
 <span class="n">choco</span> <span class="n">install</span> <span class="n">plantuml</span>
 </pre></div>
 </div>
 <p>またgitとVisual Studio Codeもインストールしておきます。</p>
-<div class="highlight-PowerShell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">git</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">git</span>
 <span class="n">choco</span> <span class="n">install</span> <span class="n">vscode</span>
 </pre></div>
 </div>
 <p>これでPATHの設定が変更されるので、powershellをいったん閉じて、再度管理者権限でPowerShellを起動します。</p>
 <p>その後 <code class="code docutils literal notranslate"><span class="pre">Python</span> <span class="pre">-V</span></code> と実行してバージョンを表示し、Pythonが使えることを確認します。以下のように表示されればOKです。</p>
-<div class="highlight-PowerShell notranslate"><div class="highlight"><pre><span></span>PS C:\WINDOWS\system32&gt; Python -V
-Python 3.7.1
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; Python -V</span>
+<span class="go">Python 3.7.1</span>
 </pre></div>
 </div>
 <p>pipが利用できることも確認します。</p>
