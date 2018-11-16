@@ -11,18 +11,18 @@ Welcome to Hello's documentation!
    :caption: Contents:
 
 Chocolateyのインストール
------------------------
+------------------------
 
 `Installing Chocolatey <https://chocolatey.org/docs/installation#installing-chocolatey>`_ の手順に従ってChocolateyをインストールします。
 管理者権限でPowerShellを起動して以下のコマンドを実行します（コマンドが長くて折り返して表示されているかもしれませんが、一行のコマンドです）。
 
-.. code-block:: PowerShell
+.. code-block:: powershell
 
     Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
 PowerShellの実行ポリシーをUndefinedに変更します。
 
-.. code-block:: PowerShell
+.. code-block:: powershell
 
     Set-ExecutionPolicy -ExecutionPolicy Undefined
 
@@ -30,13 +30,13 @@ PowerShellの実行ポリシーをUndefinedに変更します。
 
     変更後の状態は以下のコマンドで確認できます。
 
-    .. code-block:: PowerShell
+    .. code-block:: powershell
 
         Set-ExecutionPolicy -List
 
     実行ポリシー確認の実行例です。
 
-    .. code-block:: PowerShell
+    .. code-block:: console
 
         PS C:\windows\system32> Get-ExecutionPolicy -List
 
@@ -49,12 +49,12 @@ PowerShellの実行ポリシーをUndefinedに変更します。
          LocalMachine       Undefined
 
 Python, make, PlantUMLのインストール
------------------------------------
+------------------------------------
 
 以下の3つのコマンドを実行してpython3, make, PlantUMLをインストールします（依存関係でjre8やGraphVizもインストールされます）。
 途中何回か確認されますので :code:`y` を押して進んでください。
 
-.. code-block:: PowerShell
+.. code-block:: powershell
 
     choco install python3
     choco install make
@@ -62,7 +62,7 @@ Python, make, PlantUMLのインストール
 
 またgitとVisual Studio Codeもインストールしておきます。
 
-.. code-block:: PowerShell
+.. code-block:: powershell
 
     choco install git
     choco install vscode
@@ -71,7 +71,7 @@ Python, make, PlantUMLのインストール
 
 その後 :code:`Python -V` と実行してバージョンを表示し、Pythonが使えることを確認します。以下のように表示されればOKです。
 
-.. code-block:: PowerShell
+.. code-block:: console
 
     PS C:\WINDOWS\system32> Python -V
     Python 3.7.1
@@ -104,7 +104,7 @@ pipが利用できることも確認します。
     上のメッセージの通り以下のように実行すればOKでした。
 
 Sphinxなどのパッケージをpipでインストール
---------------------------------------
+-----------------------------------------
 
 以下のように7つのパッケージをpipでインストールします。
 
@@ -119,7 +119,7 @@ Sphinxなどのパッケージをpipでインストール
     pip install sphinxcontrib-plantuml
 
 Noto Sans CJK jpフォントのダウンロード
--------------------------------------
+--------------------------------------
 
 blockdiagで図を生成する際にNoto Sans CJK jpフォントを使用するようにします。
 通常は `Google Noto Fonts <https://www.google.com/get/noto/>`_ からダウンロードしてインストールするのですが、ここで配布されているのはOpenType形式でSphinxでは使えないようです。
@@ -133,7 +133,7 @@ Windowsで利用するわけではないので、Windowsのフォントへのイ
 もしNoto Sans CJK jpフォントをWindowsで利用する場合は公式サイトからダウンロードしてWindowsのフォントインストールの手順を踏んでください。
 
 自動ビルドの実行
----------------
+----------------
 
 powershellまたはコマンドプロントをSphinxのドキュメントのベースディレクトリで開き、以下のコマンドを実行します。
 
