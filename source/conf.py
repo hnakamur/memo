@@ -19,14 +19,14 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'Hello'
+project = 'hnakamur\'s tech memo'
 copyright = '2018, Hiroaki Nakamura'
 author = 'Hiroaki Nakamura'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = ''
 
 
 # -- General configuration ---------------------------------------------------

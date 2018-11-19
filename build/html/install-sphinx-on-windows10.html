@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Windows 10にSphinxをインストール &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
+    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="hnakamur&#39;s tech memo" href="index.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+<link href="_static/solarized-dark.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="index.html" title="hnakamur&#39;s tech memo"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Windows 10にSphinxをインストール</a><ul>
+<li><a class="reference internal" href="#chocolatey">Chocolateyのインストール</a></li>
+<li><a class="reference internal" href="#python-make-plantuml">Python, make, PlantUMLのインストール</a></li>
+<li><a class="reference internal" href="#sphinxpip">Sphinxなどのパッケージをpipでインストール</a></li>
+<li><a class="reference internal" href="#noto-sans-cjk-jp">Noto Sans CJK jpフォントのダウンロード</a></li>
+<li><a class="reference internal" href="#id1">自動ビルドの実行</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">hnakamur's tech memo</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/install-sphinx-on-windows10.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="windows-10sphinx">
+<h1>Windows 10にSphinxをインストール<a class="headerlink" href="#windows-10sphinx" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="chocolatey">
+<h2>Chocolateyのインストール<a class="headerlink" href="#chocolatey" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://chocolatey.org/docs/installation#installing-chocolatey">Installing Chocolatey</a> の手順に従ってChocolateyをインストールします。
+管理者権限でPowerShellを起動して以下のコマンドを実行します（コマンドが長くて折り返して表示されているかもしれませんが、一行のコマンドです）。</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span><span class="p">;</span> <span class="n">iex</span> <span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>PowerShellの実行ポリシーをUndefinedに変更します。</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-ExecutionPolicy</span> <span class="n">Undefined</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>PowerShellの実行ポリシーの確認</p>
+<p>変更後の状態は以下のコマンドで確認できます。</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-List</span>
+</pre></div>
+</div>
+<p>実行ポリシー確認の実行例です。</p>
+<div class="last highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\windows\system32&gt; Get-ExecutionPolicy -List</span>
+
+<span class="go">        Scope ExecutionPolicy</span>
+<span class="go">        ----- ---------------</span>
+<span class="go">MachinePolicy       Undefined</span>
+<span class="go">   UserPolicy       Undefined</span>
+<span class="go">      Process          Bypass</span>
+<span class="go">  CurrentUser       Undefined</span>
+<span class="go"> LocalMachine       Undefined</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="python-make-plantuml">
+<h2>Python, make, PlantUMLのインストール<a class="headerlink" href="#python-make-plantuml" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下の3つのコマンドを実行してpython3, make, PlantUMLをインストールします（依存関係でjre8やGraphVizもインストールされます）。
+途中何回か確認されますので <code class="code docutils literal notranslate"><span class="pre">y</span></code> を押して進んでください。</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">python3</span>
+<span class="n">choco</span> <span class="n">install</span> <span class="n">make</span>
+<span class="n">choco</span> <span class="n">install</span> <span class="n">plantuml</span>
+</pre></div>
+</div>
+<p>またgitとVisual Studio Codeもインストールしておきます。</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">git</span>
+<span class="n">choco</span> <span class="n">install</span> <span class="n">vscode</span>
+</pre></div>
+</div>
+<p>これでPATHの設定が変更されるので、powershellをいったん閉じて、再度管理者権限でPowerShellを起動します。</p>
+<p>その後 <code class="code docutils literal notranslate"><span class="pre">Python</span> <span class="pre">-V</span></code> と実行してバージョンを表示し、Pythonが使えることを確認します。以下のように表示されればOKです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; Python -V</span>
+<span class="go">Python 3.7.1</span>
+</pre></div>
+</div>
+<p>pipが利用できることも確認します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; pip --version</span>
+<span class="go">pip 10.0.1 from c:\python37\lib\site-packages\pip (python 3.7)</span>
+</pre></div>
+</div>
+<p>次にpipを最新版にアップグレードします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">c:\python37\python.exe -m pip install --upgrade pip</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">注釈</p>
+<p>pipのアップグレード</p>
+<p>Linuxなどでは <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code> で良いのですが、以下のエラーが出ました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; pip install --upgrade pip</span>
+<span class="go">ERROR: To modify pip, please run the following command:</span>
+<span class="go">c:\python37\python.exe -m pip install --upgrade pip</span>
+<span class="go">You are using pip version 10.0.1, however version 18.1 is available.</span>
+<span class="go">You should consider upgrading via the &#39;python -m pip install --upgrade pip&#39; command.</span>
+</pre></div>
+</div>
+<p class="last">上のメッセージの通り以下のように実行すればOKでした。</p>
+</div>
+</div>
+<div class="section" id="sphinxpip">
+<h2>Sphinxなどのパッケージをpipでインストール<a class="headerlink" href="#sphinxpip" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下のように7つのパッケージをpipでインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install sphinx</span>
+<span class="go">pip install sphinx-autobuild</span>
+<span class="go">pip install sphinxcontrib-blockdiag</span>
+<span class="go">pip install sphinxcontrib-seqdiag</span>
+<span class="go">pip install sphinxcontrib-actdiag</span>
+<span class="go">pip install sphinxcontrib-nwdiag</span>
+<span class="go">pip install sphinxcontrib-plantuml</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="noto-sans-cjk-jp">
+<h2>Noto Sans CJK jpフォントのダウンロード<a class="headerlink" href="#noto-sans-cjk-jp" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>blockdiagで図を生成する際にNoto Sans CJK jpフォントを使用するようにします。
+通常は <a class="reference external" href="https://www.google.com/get/noto/">Google Noto Fonts</a> からダウンロードしてインストールするのですが、ここで配布されているのはOpenType形式でSphinxでは使えないようです。</p>
+<p>そこで有志の方がTrueTypeに変換して公開されているファイルを利用します。
+ブラウザで <a class="reference external" href="https://github.com/minoryorg/Noto-Sans-CJK-JP/blob/master/fonts/NotoSansCJKjp-Regular.ttf">https://github.com/minoryorg/Noto-Sans-CJK-JP/blob/master/fonts/NotoSansCJKjp-Regular.ttf</a>
+を開き、[Download]ボタンをクリックしてダウンロードします。
+<code class="code docutils literal notranslate"><span class="pre">C:\fonts</span></code> というフォルダを作成してそこに移動します。</p>
+<p>Windowsで利用するわけではないので、Windowsのフォントへのインストールは不要です。
+もしNoto Sans CJK jpフォントをWindowsで利用する場合は公式サイトからダウンロードしてWindowsのフォントインストールの手順を踏んでください。</p>
+</div>
+<div class="section" id="id1">
+<h2>自動ビルドの実行<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>powershellまたはコマンドプロントをSphinxのドキュメントのベースディレクトリで開き、以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sphinx-autobuild.exe source build\html</span>
+</pre></div>
+</div>
+<p>ブラウザで <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> を開くとビルドされたHTMLを確認できます。
+Sphinxで記述している文書のソースファイルを編集・保存したら、自動でビルドとブラウザのリロードが実行され、表示内容が更新されます。これは便利！</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="index.html" title="hnakamur&#39;s tech memo"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2018, Hiroaki Nakamura.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+  </body>
+</html>

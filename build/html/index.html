@@ -4,7 +4,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Welcome to Hello&#39;s documentation! &#8212; Hello 0.1 ドキュメント</title>
+    <title>hnakamur&#39;s tech memo &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
     <link rel="stylesheet" href="_static/solar.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -14,7 +14,8 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
-    <link rel="search" title="検索" href="search.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="Windows 10にSphinxをインストール" href="install-sphinx-on-windows10.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
 <link href="_static/solarized-dark.css" rel="stylesheet">
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -23,24 +24,17 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
              accesskey="I">索引</a></li>
-        <li class="nav-item nav-item-0"><a href="#">Hello 0.1 ドキュメント</a> &#187;</li> 
+        <li class="right" >
+          <a href="install-sphinx-on-windows10.html" title="Windows 10にSphinxをインストール"
+             accesskey="N">次へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="#">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Welcome to Hello's documentation!</a><ul>
-<li><a class="reference internal" href="#chocolatey">Chocolateyのインストール</a></li>
-<li><a class="reference internal" href="#python-make-plantuml">Python, make, PlantUMLのインストール</a></li>
-<li><a class="reference internal" href="#sphinxpip">Sphinxなどのパッケージをpipでインストール</a></li>
-<li><a class="reference internal" href="#noto-sans-cjk-jp">Noto Sans CJK jpフォントのダウンロード</a></li>
-<li><a class="reference internal" href="#id1">自動ビルドの実行</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
-</ul>
-
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="install-sphinx-on-windows10.html"
+                        title="次の章へ">Windows 10にSphinxをインストール</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -68,203 +62,14 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-hello-s-documentation">
-<h1>Welcome to Hello's documentation!<a class="headerlink" href="#welcome-to-hello-s-documentation" title="このヘッドラインへのパーマリンク">¶</a></h1>
+  <div class="section" id="hnakamur-s-tech-memo">
+<h1>hnakamur's tech memo<a class="headerlink" href="#hnakamur-s-tech-memo" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <div class="toctree-wrapper compound">
-</div>
-<div class="section" id="chocolatey">
-<h2>Chocolateyのインストール<a class="headerlink" href="#chocolatey" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://chocolatey.org/docs/installation#installing-chocolatey">Installing Chocolatey</a> の手順に従ってChocolateyをインストールします。
-管理者権限でPowerShellを起動して以下のコマンドを実行します（コマンドが長くて折り返して表示されているかもしれませんが、一行のコマンドです）。</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span><span class="p">;</span> <span class="n">iex</span> <span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
-</pre></div>
-</div>
-<p>PowerShellの実行ポリシーをUndefinedに変更します。</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-ExecutionPolicy</span> <span class="n">Undefined</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>PowerShellの実行ポリシーの確認</p>
-<p>変更後の状態は以下のコマンドで確認できます。</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-List</span>
-</pre></div>
-</div>
-<p>実行ポリシー確認の実行例です。</p>
-<div class="last highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\windows\system32&gt; Get-ExecutionPolicy -List</span>
-
-<span class="go">        Scope ExecutionPolicy</span>
-<span class="go">        ----- ---------------</span>
-<span class="go">MachinePolicy       Undefined</span>
-<span class="go">   UserPolicy       Undefined</span>
-<span class="go">      Process          Bypass</span>
-<span class="go">  CurrentUser       Undefined</span>
-<span class="go"> LocalMachine       Undefined</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="python-make-plantuml">
-<h2>Python, make, PlantUMLのインストール<a class="headerlink" href="#python-make-plantuml" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>以下の3つのコマンドを実行してpython3, make, PlantUMLをインストールします（依存関係でjre8やGraphVizもインストールされます）。
-途中何回か確認されますので <code class="code docutils literal notranslate"><span class="pre">y</span></code> を押して進んでください。</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">python3</span>
-<span class="n">choco</span> <span class="n">install</span> <span class="n">make</span>
-<span class="n">choco</span> <span class="n">install</span> <span class="n">plantuml</span>
-</pre></div>
-</div>
-<p>またgitとVisual Studio Codeもインストールしておきます。</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">choco</span> <span class="n">install</span> <span class="n">git</span>
-<span class="n">choco</span> <span class="n">install</span> <span class="n">vscode</span>
-</pre></div>
-</div>
-<p>これでPATHの設定が変更されるので、powershellをいったん閉じて、再度管理者権限でPowerShellを起動します。</p>
-<p>その後 <code class="code docutils literal notranslate"><span class="pre">Python</span> <span class="pre">-V</span></code> と実行してバージョンを表示し、Pythonが使えることを確認します。以下のように表示されればOKです。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; Python -V</span>
-<span class="go">Python 3.7.1</span>
-</pre></div>
-</div>
-<p>pipが利用できることも確認します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; pip --version</span>
-<span class="go">pip 10.0.1 from c:\python37\lib\site-packages\pip (python 3.7)</span>
-</pre></div>
-</div>
-<p>次にpipを最新版にアップグレードします。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">c:\python37\python.exe -m pip install --upgrade pip</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>pipのアップグレード</p>
-<p>Linuxなどでは <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code> で良いのですが、以下のエラーが出ました。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; pip install --upgrade pip</span>
-<span class="go">ERROR: To modify pip, please run the following command:</span>
-<span class="go">c:\python37\python.exe -m pip install --upgrade pip</span>
-<span class="go">You are using pip version 10.0.1, however version 18.1 is available.</span>
-<span class="go">You should consider upgrading via the &#39;python -m pip install --upgrade pip&#39; command.</span>
-</pre></div>
-</div>
-<p class="last">上のメッセージの通り以下のように実行すればOKでした。</p>
-</div>
-</div>
-<div class="section" id="sphinxpip">
-<h2>Sphinxなどのパッケージをpipでインストール<a class="headerlink" href="#sphinxpip" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>以下のように7つのパッケージをpipでインストールします。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pip install sphinx</span>
-<span class="go">pip install sphinx-autobuild</span>
-<span class="go">pip install sphinxcontrib-blockdiag</span>
-<span class="go">pip install sphinxcontrib-seqdiag</span>
-<span class="go">pip install sphinxcontrib-actdiag</span>
-<span class="go">pip install sphinxcontrib-nwdiag</span>
-<span class="go">pip install sphinxcontrib-plantuml</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="noto-sans-cjk-jp">
-<h2>Noto Sans CJK jpフォントのダウンロード<a class="headerlink" href="#noto-sans-cjk-jp" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>blockdiagで図を生成する際にNoto Sans CJK jpフォントを使用するようにします。
-通常は <a class="reference external" href="https://www.google.com/get/noto/">Google Noto Fonts</a> からダウンロードしてインストールするのですが、ここで配布されているのはOpenType形式でSphinxでは使えないようです。</p>
-<p>そこで有志の方がTrueTypeに変換して公開されているファイルを利用します。
-ブラウザで <a class="reference external" href="https://github.com/minoryorg/Noto-Sans-CJK-JP/blob/master/fonts/NotoSansCJKjp-Regular.ttf">https://github.com/minoryorg/Noto-Sans-CJK-JP/blob/master/fonts/NotoSansCJKjp-Regular.ttf</a>
-を開き、[Download]ボタンをクリックしてダウンロードします。
-<code class="code docutils literal notranslate"><span class="pre">C:\fonts</span></code> というフォルダを作成してそこに移動します。</p>
-<p>Windowsで利用するわけではないので、Windowsのフォントへのインストールは不要です。
-もしNoto Sans CJK jpフォントをWindowsで利用する場合は公式サイトからダウンロードしてWindowsのフォントインストールの手順を踏んでください。</p>
-</div>
-<div class="section" id="id1">
-<h2>自動ビルドの実行<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>powershellまたはコマンドプロントをSphinxのドキュメントのベースディレクトリで開き、以下のコマンドを実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sphinx-autobuild.exe source build\html</span>
-</pre></div>
-</div>
-<p>ブラウザで <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> を開くとビルドされたHTMLを確認できます。
-Sphinxで記述している文書のソースファイルを編集・保存したら、自動でビルドとブラウザのリロードが実行され、表示内容が更新されます。これは便利！</p>
-<p>どうもですー。</p>
-<div><svg height="444" viewBox="0 0 760 444" width="760" xmlns="http://www.w3.org/2000/svg" xmlns:inkspace="http://www.inkscape.org/namespaces/inkscape" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs id="defs_block">
-    <filter height="1.504" id="filter_blur" inkspace:collect="always" width="1.1575" x="-0.07875" y="-0.252">
-      <feGaussianBlur id="feGaussianBlur3780" inkspace:collect="always" stdDeviation="4.2" />
-    </filter>
-  </defs>
-  <title>blockdiag</title>
-  <desc />
-  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="155" y="162" />
-  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="307" y="162" />
-  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="459" y="306" />
-  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="611" y="306" />
-  <path d="M 131 103 L 435 103 A2,4 0 0 1 435 111 L 131 111 A2,4 0 0 1 131 103" fill="rgb(0,0,0)" style="filter:url(#filter_blur)" />
-  <path d="M 131 247 L 739 247 A2,4 0 0 1 739 255 L 131 255 A2,4 0 0 1 131 247" fill="rgb(0,0,0)" style="filter:url(#filter_blur)" />
-  <path d="M 128 100 L 432 100 A2,4 0 0 1 432 108 L 128 108 A2,4 0 0 1 128 100" fill="rgb(185,203,228)" stroke="rgb(0,0,0)" />
-  <path d="M 432 108 A2,4 0 0 1 432 100" fill="none" stroke="rgb(0,0,0)" />
-  <path d="M 128 100 L 432 100" fill="none" stroke="none" />
-  <path d="M 280 35 L 280 100" fill="none" stroke="rgb(0,0,0)" />
-  <path d="M 128 244 L 736 244 A2,4 0 0 1 736 252 L 128 252 A2,4 0 0 1 128 244" fill="rgb(185,203,228)" stroke="rgb(0,0,0)" />
-  <path d="M 736 252 A2,4 0 0 1 736 244" fill="none" stroke="rgb(0,0,0)" />
-  <path d="M 128 244 L 736 244" fill="none" stroke="none" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="22" x="109.0" y="102">dmz</text>
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="58" x="91.0" y="116">210.x.x.x/24</text>
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="40" x="100.0" y="246">internal</text>
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="58" x="91.0" y="260">172.x.x.x/24</text>
-  <path d="M 204 108 L 204 156" fill="none" stroke="rgb(0,0,0)" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="43" x="237.5" y="136">210.x.x.1</text>
-  <path d="M 204 196 L 204 244" fill="none" stroke="rgb(0,0,0)" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="43" x="237.5" y="224">172.x.x.1</text>
-  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="152" y="156" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="34" x="204.0" y="181">web01</text>
-  <path d="M 356 108 L 356 156" fill="none" stroke="rgb(0,0,0)" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="43" x="389.5" y="136">210.x.x.2</text>
-  <path d="M 356 196 L 356 244" fill="none" stroke="rgb(0,0,0)" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="43" x="389.5" y="224">172.x.x.2</text>
-  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="304" y="156" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="34" x="356.0" y="181">web02</text>
-  <path d="M 508 252 L 508 300" fill="none" stroke="rgb(0,0,0)" />
-  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="456" y="300" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="26" x="508.0" y="325">db01</text>
-  <path d="M 660 252 L 660 300" fill="none" stroke="rgb(0,0,0)" />
-  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="608" y="300" />
-  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="26" x="660.0" y="325">db02</text>
-</svg>
-</div>
-<div class="graphviz"><object data="_images/graphviz-a1eafff711198c811734fdbf1aa875152ded0b75.svg" type="image/svg+xml" class="graphviz">
-<p class="warning">digraph foo {
-   &quot;bar&quot; -&gt; &quot;baz&quot;;
-}</p></object></div>
-<p class="plantuml">
-<object data="_images/plantuml-4bbc4f6e5528a344323882a8a7076a44980d556a.svg" type="image/svg+xml" style="width:381px;height:378px;">
-<img src="_images/plantuml-4bbc4f6e5528a344323882a8a7076a44980d556a.png" alt="skinparam monochrome true
-
-actor User
-participant &quot;First Class&quot; as A
-participant &quot;Second Class&quot; as B
-participant &quot;Last Class&quot; as C
-
-User -&gt; A: DoWork
-activate A
-
-A -&gt; B: Create Request
-activate B
-
-B -&gt; C: DoWork
-activate C
-C --&gt; B: WorkDone
-destroy C
-
-B --&gt; A: Request Created
-deactivate B
-
-A --&gt; User: Done
-deactivate A"/>
-
-</object></p>
-</div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">索引</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">モジュール索引</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">検索ページ</span></a></li>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install-sphinx-on-windows10.html">Windows 10にSphinxをインストール</a></li>
 </ul>
+</div>
 </div>
 
 
@@ -279,7 +84,10 @@ deactivate A"/>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
              >索引</a></li>
-        <li class="nav-item nav-item-0"><a href="#">Hello 0.1 ドキュメント</a> &#187;</li> 
+        <li class="right" >
+          <a href="install-sphinx-on-windows10.html" title="Windows 10にSphinxをインストール"
+             >次へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer">
