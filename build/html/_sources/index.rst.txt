@@ -10,4 +10,5 @@ hnakamur's tech memo
    :maxdepth: 1
    :caption: Contents:
 
+   use-sphinx-with-docker
    install-sphinx-on-windows10
