@@ -6,6 +6,8 @@
 Windows 10にSphinxをインストール
 ================================
 
+* :更新日: 2018-11-19
+  
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

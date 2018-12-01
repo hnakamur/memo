@@ -128,8 +128,6 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
-html_last_updated_fmt = '%Y-%m-%d'
-
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
