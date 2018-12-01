@@ -186,12 +186,12 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id6">
 <h3>Linux<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ドキュメントプロジェクトを作成し、ターミナルを開いてそこに移動し、以下のコマンドを実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER)&quot; hnakamur/sphinx my-sphinx-quickstart</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart</span>
 </pre></div>
 </div>
 <p>プロジェクト名、著者名、リリース番号を聞かれますので入力します。</p>
 <p>あるいは以下のようにオプションで指定することも可能です。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER)&quot; hnakamur/sphinx my-sphinx-quickstart -p &quot;YourProjectName&quot; -a &quot;John Doe &lt;john.doe@example.com&gt;&quot; -r 1.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart -p &quot;YourProjectName&quot; -a &quot;John Doe &lt;john.doe@example.com&gt;&quot; -r 1.0</span>
 </pre></div>
 </div>
 </div>
@@ -224,11 +224,11 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id10">
 <h3>Linux<a class="headerlink" href="#id10" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ビルドには以下のコマンドを実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER)&quot; hnakamur/sphinx make html</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx make html</span>
 </pre></div>
 </div>
 <p>あるいは以下のコマンドでもビルドできます。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER)&quot; hnakamur/sphinx sphinx-build -b html source build</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-build -b html source build</span>
 </pre></div>
 </div>
 </div>
@@ -266,7 +266,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id14">
 <h3>Linux<a class="headerlink" href="#id14" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ターミナルを開いてドキュメントプロジェクトのディレクトリに移動し以下のコマンド実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -p 8000:8000 -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER)&quot; hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -p 8000:8000 -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0</span>
 </pre></div>
 </div>
 <p>ブラウザで <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は <code class="code docutils literal notranslate"><span class="pre">-p</span></code> オプションのコロンより前の番号を変えてください。</p>
