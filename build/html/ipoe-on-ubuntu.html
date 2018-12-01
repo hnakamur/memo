@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>UbuntuでIPoE &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
+    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="Windows 10にSphinxをインストール" href="install-sphinx-on-windows10.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+<link href="_static/solarized-dark.css" rel="stylesheet">
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="install-sphinx-on-windows10.html" title="Windows 10にSphinxをインストール"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">UbuntuでIPoE</a><ul>
+<li><a class="reference internal" href="#id1">はじめに</a></li>
+<li><a class="reference internal" href="#id2">構成図</a></li>
+<li><a class="reference internal" href="#id3">ホームゲートウェイの設定</a></li>
+<li><a class="reference internal" href="#id4">サーバのネットワーク設定</a></li>
+<li><a class="reference internal" href="#ipoe">IPoEの設定</a></li>
+<li><a class="reference internal" href="#iptables">iptablesの設定</a></li>
+<li><a class="reference internal" href="#keepalived">keepalivedの設定</a></li>
+<li><a class="reference internal" href="#dhcp">DHCPサーバの設定</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="install-sphinx-on-windows10.html"
+                        title="前の章へ">Windows 10にSphinxをインストール</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ipoe-on-ubuntu.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ubuntuipoe">
+<h1>UbuntuでIPoE<a class="headerlink" href="#ubuntuipoe" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<ul class="simple">
+<li><table class="first docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">作成日:</th><td class="field-body">2018-12-01</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<div class="section" id="id1">
+<h2>はじめに<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.iijmio.jp/imh/">IIJmioひかり</a> とIIJmio ひかり電話と <a class="reference external" href="https://www.iijmio.jp/imh/ipoe/">IIJmioひかり IPoEオプション</a> を利用しているのですが、Ubuntu 18.04.1 LTSでIPoEを使うようにしたメモです。</p>
+</div>
+<div class="section" id="id2">
+<h2>構成図<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ネットワーク配線図は以下の通りです。</p>
+<div><svg height="440" viewBox="0 0 640 440" width="640" xmlns="http://www.w3.org/2000/svg" xmlns:inkspace="http://www.inkscape.org/namespaces/inkscape" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs id="defs_block">
+    <filter height="1.504" id="filter_blur" inkspace:collect="always" width="1.1575" x="-0.07875" y="-0.252">
+      <feGaussianBlur id="feGaussianBlur3780" inkspace:collect="always" stdDeviation="4.2" />
+    </filter>
+  </defs>
+  <title>blockdiag</title>
+  <desc />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="67" y="46" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="67" y="126" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="259" y="126" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="67" y="206" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="67" y="286" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="67" y="366" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="259" y="366" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="128" x="451" y="366" />
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="64" y="40" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="49" x="128.5" y="67">home-gw</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="64" y="120" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="34" x="128.0" y="147">beagle</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="256" y="120" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="46" x="320.0" y="147">primergy</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="64" y="200" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="21" x="128.5" y="225">hub</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="64" y="280" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="56" x="128.0" y="305">wifi-router</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="64" y="360" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="47" x="128.5" y="387">thinkpad</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="256" y="360" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="41" x="320.5" y="385">android</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="128" x="448" y="360" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="23" x="512.5" y="387">ipad</text>
+  <path d="M 128 80 L 128 120" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 80 L 128 100" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 100 L 320 100" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 320 100 L 320 120" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 160 L 128 200" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 320 160 L 320 180" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 180 L 320 180" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 180 L 128 200" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 240 L 128 280" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 320 L 128 360" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <path d="M 128 320 L 128 340" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <path d="M 128 340 L 320 340" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <path d="M 320 340 L 320 360" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <path d="M 128 320 L 128 340" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <path d="M 128 340 L 512 340" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <path d="M 512 340 L 512 360" fill="none" stroke="rgb(0,0,0)" stroke-dasharray="4" />
+  <rect fill="white" height="14" stroke="rgb(0,0,0)" width="35" x="159" y="343" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="19" x="176.5" y="355">wifi</text>
+  <rect fill="white" height="14" stroke="rgb(0,0,0)" width="35" x="271" y="343" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="19" x="288.5" y="355">wifi</text>
+  <rect fill="white" height="14" stroke="rgb(0,0,0)" width="35" x="463" y="343" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="19" x="480.5" y="355">wifi</text>
+</svg>
+</div>
+<p>ホームゲートウェイは <a class="reference external" href="https://www.ntt-west.co.jp/kiki/download/flets/rt500ki/">RT-500KI</a> です。
+WiFiルータは <a class="reference external" href="http://www.aterm.jp/product/atermstation/product/warpstar/wg1800hp2/">AtermWG1800HP2</a> ですがWANポートが1つしかないため、primergyとbeagleの2台をつなぐためにハブを挟んでいます。
+ハブはI-O DATAの <a class="reference external" href="https://www.iodata.jp/product/lan/hub/etg-esh5/">ETG-ESH5</a> です。
+WiFiルータはブリッジモードを使用しています。</p>
+<p>論理ネットワーク図は以下の通りです。</p>
+<div><svg height="732" viewBox="0 0 912 732" width="912" xmlns="http://www.w3.org/2000/svg" xmlns:inkspace="http://www.inkscape.org/namespaces/inkscape" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs id="defs_block">
+    <filter height="1.504" id="filter_blur" inkspace:collect="always" width="1.1575" x="-0.07875" y="-0.252">
+      <feGaussianBlur id="feGaussianBlur3780" inkspace:collect="always" stdDeviation="4.2" />
+    </filter>
+  </defs>
+  <title>blockdiag</title>
+  <desc />
+  <path d="M 171 178 A16,8 0 0 1 187 170 A16,6 0 0 1 227 170 A16,8 0 0 1 243 178 A16,8 0 0 1 243 194 A16,20 0 0 1 219 194 A16,20 0 0 1 195 194 A16,20 0 0 1 171 194 A16,8 0 0 1 171 178" fill="rgb(0,0,0)" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="155" y="306" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="307" y="450" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="459" y="450" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="155" y="594" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="611" y="594" />
+  <rect fill="rgb(0,0,0)" height="40" stroke="rgb(0,0,0)" style="filter:url(#filter_blur);opacity:0.7;fill-opacity:1" width="104" x="763" y="594" />
+  <path d="M 131 391 L 587 391 A2,4 0 0 1 587 399 L 131 399 A2,4 0 0 1 131 391" fill="rgb(0,0,0)" style="filter:url(#filter_blur)" />
+  <path d="M 131 535 L 891 535 A2,4 0 0 1 891 543 L 131 543 A2,4 0 0 1 131 535" fill="rgb(0,0,0)" style="filter:url(#filter_blur)" />
+  <path d="M 128 388 L 584 388 A2,4 0 0 1 584 396 L 128 396 A2,4 0 0 1 128 388" fill="rgb(185,203,228)" stroke="rgb(0,0,0)" />
+  <path d="M 584 396 A2,4 0 0 1 584 388" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 388 L 584 388" fill="none" stroke="none" />
+  <path d="M 128 532 L 888 532 A2,4 0 0 1 888 540 L 128 540 A2,4 0 0 1 128 532" fill="rgb(185,203,228)" stroke="rgb(0,0,0)" />
+  <path d="M 888 540 A2,4 0 0 1 888 532" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 128 532 L 888 532" fill="none" stroke="none" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="22" x="109.0" y="390">dmz</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="72" x="84.0" y="404">192.168.1.x/24</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="40" x="100.0" y="534">internal</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="72" x="84.0" y="548">192.168.2.x/24</text>
+  <path d="M 204 104 L 204 156" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 204 196 L 204 248" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 168 172 A16,8 0 0 1 184 164 A16,6 0 0 1 224 164 A16,8 0 0 1 240 172 A16,8 0 0 1 240 188 A16,20 0 0 1 216 188 A16,20 0 0 1 192 188 A16,20 0 0 1 168 188 A16,8 0 0 1 168 172" fill="rgb(255,255,255)" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="20" x="204.0" y="181">inet</text>
+  <path d="M 204 248 L 204 300" fill="none" stroke="rgb(0,0,0)" />
+  <path d="M 204 340 L 204 388" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="78" x="255.0" y="362">ipv6:prefix:xxxx</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="57" x="244.5" y="375">192.168.1.1</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="152" y="300" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="49" x="204.5" y="327">home-gw</text>
+  <path d="M 356 396 L 356 444" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="77" x="406.5" y="411">ipv6:prefix:zzzz</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="76" x="406.0" y="425">vip:192.168.1.2</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="57" x="396.5" y="438">192.168.1.3</text>
+  <path d="M 356 484 L 356 532" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="76" x="406.0" y="506">vip:192.168.2.1</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="57" x="396.5" y="519">192.168.2.2</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="304" y="444" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="34" x="356.0" y="471">beagle</text>
+  <path d="M 508 396 L 508 444" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="81" x="560.5" y="418">ipv6:prefix:yyyy</text>
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="57" x="548.5" y="431">192.168.1.4</text>
+  <path d="M 508 484 L 508 532" fill="none" stroke="rgb(0,0,0)" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="57" x="548.5" y="512">192.168.2.3</text>
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="456" y="444" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="46" x="508.0" y="471">primergy</text>
+  <path d="M 204 540 L 204 588" fill="none" stroke="rgb(0,0,0)" />
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="152" y="588" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="47" x="204.5" y="615">thinkpad</text>
+  <path d="M 660 540 L 660 588" fill="none" stroke="rgb(0,0,0)" />
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="608" y="588" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="41" x="660.5" y="613">android</text>
+  <path d="M 812 540 L 812 588" fill="none" stroke="rgb(0,0,0)" />
+  <rect fill="rgb(255,255,255)" height="40" stroke="rgb(0,0,0)" width="104" x="760" y="588" />
+  <text fill="rgb(0,0,0)" font-family="sans-serif" font-size="11" font-style="normal" font-weight="normal" text-anchor="middle" textLength="23" x="812.5" y="615">ipad</text>
+</svg>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>ホームゲートウェイの設定<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>DHCPサーバの無効化</dt>
+<dd><ul class="first last">
+<li>[詳細設定]/[DHCPv4サーバ設定]で[DHCPv4サーバ機能]の[使用する]チェックボックスをオフ</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>LAN側の静的ルーティング</dt>
+<dd><ul class="first last">
+<li>[詳細設定]/[LAN側静的ルーティング設定]で以下のように設定します。</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<table border="1" class="docutils">
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><th class="stub">宛先IPアドレス/マスク長</th>
+<td>192.168.2.0/24</td>
+</tr>
+<tr class="row-even"><th class="stub">ゲートウェイ</th>
+<td>192.168.1.2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id4">
+<h2>サーバのネットワーク設定<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>beagleの <code class="code docutils literal notranslate"><span class="pre">/etc/netplan/01-netcfg.yaml</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">network</span><span class="p">:</span>
+  <span class="n">version</span><span class="p">:</span> <span class="mi">2</span>
+  <span class="n">renderer</span><span class="p">:</span> <span class="n">networkd</span>
+  <span class="n">ethernets</span><span class="p">:</span>
+    <span class="n">enp3s0</span><span class="p">:</span>
+      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
+      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.3</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
+      <span class="n">gateway4</span><span class="p">:</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span>
+      <span class="n">nameservers</span><span class="p">:</span>
+        <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">]</span>
+      <span class="n">dhcp6</span><span class="p">:</span> <span class="n">no</span>
+    <span class="n">enp4s0</span><span class="p">:</span>
+      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
+      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">2.2</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>primergyの <code class="code docutils literal notranslate"><span class="pre">/etc/netplan/01-netcfg.yaml</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">network</span><span class="p">:</span>
+  <span class="n">version</span><span class="p">:</span> <span class="mi">2</span>
+  <span class="n">renderer</span><span class="p">:</span> <span class="n">networkd</span>
+  <span class="n">ethernets</span><span class="p">:</span>
+    <span class="n">enp0s25</span><span class="p">:</span>
+      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
+      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.4</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
+      <span class="n">gateway4</span><span class="p">:</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span>
+      <span class="n">nameservers</span><span class="p">:</span>
+        <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">]</span>
+      <span class="n">dhcp6</span><span class="p">:</span> <span class="n">no</span>
+    <span class="n">enp2s0</span><span class="p">:</span>
+      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
+      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">2.3</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
+      <span class="n">dhcp6</span><span class="p">:</span> <span class="n">no</span>
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">netplan</span> <span class="pre">apply</span></code> コマンドで反映しました。</p>
+</div>
+<div class="section" id="ipoe">
+<h2>IPoEの設定<a class="headerlink" href="#ipoe" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>上記のように配線した状態で <code class="code docutils literal notranslate"><span class="pre">ip</span> <span class="pre">a</span></code> でIPアドレスを確認するとIPv6のグローバルアドレスがついていました。</p>
+<p><code class="code docutils literal notranslate"><span class="pre">ip</span> <span class="pre">-6</span> <span class="pre">tunnel</span> <span class="pre">add</span></code> コマンドでmodeにipip6（IPv4 over IPv6トンネル）を指定することでトンネルを作成します。以下のようなシェルスクリプト <code class="code docutils literal notranslate"><span class="pre">/usr/local/sbin/ipoe.sh</span></code> を作成しました。</p>
+<div class="code sh highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/sh -x
+set -eu
+
+#. /etc/default/ipoe
+
+tunnel_name=&quot;${TUNNEL_NAME}&quot;
+wan_interface=&quot;${WAN_INTERFACE}&quot;
+gateway_addr=&quot;${GATEWAY_ADDR}&quot;
+
+case &quot;$1&quot; in
+start)
+  local_addr=$(/sbin/ip a | /usr/bin/awk &#39;/mngtmpaddr/ {print substr($2, 1, index($2, &quot;/&quot;) - 1); exit}&#39;)
+  /sbin/ip -6 tunnel add &quot;${tunnel_name}&quot; mode ipip6 remote &quot;${gateway_addr}&quot; local &quot;${local_addr}&quot; dev &quot;${wan_interface}&quot;
+  /sbin/ip link set &quot;${tunnel_name}&quot; up
+  /sbin/ip route delete default || :
+  /sbin/ip route add default dev &quot;${tunnel_name}&quot;
+  ;;
+stop)
+  /sbin/ip link set &quot;${tunnel_name}&quot; down
+  /sbin/ip -6 tunnel del &quot;${tunnel_name}&quot;
+  /sbin/ip route add default dev &quot;${wan_interface}&quot;
+  ;;
+*)
+  echo &quot;Usage: ipoe.sh (start|stop)&quot;
+  exit 1
+  ;;
+esac
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">local_addr</span></code> を設定している箇所は以下のような行からIPv6アドレスを取り出しています。もしmngtmpaddrを含む行が複数ある場合は最初の行を採用します。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">inet6</span> <span class="n">xxxx</span><span class="p">:</span><span class="n">xxx</span><span class="p">:</span><span class="n">xxx</span><span class="p">:</span><span class="n">xxxx</span><span class="p">:</span><span class="n">xxxx</span><span class="p">:</span><span class="n">xxx</span><span class="p">:</span><span class="n">xxxx</span><span class="p">:</span><span class="n">xxxx</span><span class="o">/</span><span class="mi">64</span> <span class="n">scope</span> <span class="k">global</span> <span class="n">dynamic</span> <span class="n">mngtmpaddr</span> <span class="n">noprefixroute</span>
+</pre></div>
+</div>
+<p>サービス定義ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/systemd/system/ipoe.service</span></code> は以下のようにしました。
+<a class="reference external" href="https://wiki.archlinux.jp/index.php/IPv6_%E3%83%88%E3%83%B3%E3%83%8D%E3%83%AB%E3%83%96%E3%83%AD%E3%83%BC%E3%82%AB%E3%83%BC%E8%A8%AD%E5%AE%9A">IPv6 トンネルブローカー設定 - ArchWiki</a> でsystemd-networkdを使ったトンネルの設定方法も見つけたのですが、こちらは試していません。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Unit</span><span class="p">]</span>
+<span class="n">Description</span><span class="o">=</span><span class="n">IPoE</span> <span class="n">tunnel</span>
+<span class="n">After</span><span class="o">=</span><span class="n">network</span><span class="o">.</span><span class="n">target</span>
+
+<span class="p">[</span><span class="n">Service</span><span class="p">]</span>
+<span class="n">Type</span><span class="o">=</span><span class="n">oneshot</span>
+<span class="n">RemainAfterExit</span><span class="o">=</span><span class="n">yes</span>
+<span class="n">EnvironmentFile</span><span class="o">=/</span><span class="n">etc</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">ipoe</span>
+<span class="n">ExecStart</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ipoe</span><span class="o">.</span><span class="n">sh</span> <span class="n">start</span>
+<span class="n">ExecStop</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ipoe</span><span class="o">.</span><span class="n">sh</span> <span class="n">stop</span>
+
+<span class="p">[</span><span class="n">Install</span><span class="p">]</span>
+<span class="n">WantedBy</span><span class="o">=</span><span class="n">multi</span><span class="o">-</span><span class="n">user</span><span class="o">.</span><span class="n">target</span>
+</pre></div>
+</div>
+<p>設定ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/default/ipoe</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># tunnel device name</span>
+<span class="n">TUNNEL_NAME</span><span class="o">=</span><span class="n">ip6tnl1</span>
+
+<span class="c1"># WAN network interface</span>
+<span class="n">WAN_INTERFACE</span><span class="o">=</span><span class="n">enp0s25</span>
+
+<span class="c1"># Gateway address</span>
+<span class="c1"># You can get this address by running the following command.</span>
+<span class="c1"># dig -t aaaa gw.transix.jp</span>
+<span class="n">GATEWAY_ADDR</span><span class="o">=</span><span class="mi">2404</span><span class="p">:</span><span class="mf">8e01</span><span class="p">::</span><span class="n">feed</span><span class="p">:</span><span class="mi">100</span>
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">WAN_INTERFACE</span></code> は実際の環境に応じて変更してください。
+<code class="code docutils literal notranslate"><span class="pre">GATEWAY_ADDR</span></code> は <code class="code docutils literal notranslate"><span class="pre">dig</span> <span class="pre">-t</span> <span class="pre">aaaa</span> <span class="pre">gw.transix.jp</span></code> で調べられます。
+NTT西日本エリアだと <code class="code docutils literal notranslate"><span class="pre">2404:8e01::feed:100</span></code> と <code class="code docutils literal notranslate"><span class="pre">2404:8e01::feed:101</span></code> のラウンドロビンになっていました。
+<a class="reference external" href="https://faq.interlink.or.jp/faq2/View/wcDisplayContent.aspx?id=220">YAMAHA RTX1200の設定マニュアル</a> によるとNTT東日本エリアでは <code class="code docutils literal notranslate"><span class="pre">2404:8e00::feed:100</span></code> と <code class="code docutils literal notranslate"><span class="pre">2404:8e00::feed:101</span></code> で、エリアは <a class="reference external" href="http://www.ntt.co.jp/product/category/area.html">NTT東日本、NTT西日本のサービス提供地域について</a> で確認できます。</p>
+<p>以下のコマンドで反映しました。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">daemon</span><span class="o">-</span><span class="n">reload</span>
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">start</span> <span class="n">ipoe</span>
+<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">enable</span> <span class="n">ipoe</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="iptables">
+<h2>iptablesの設定<a class="headerlink" href="#iptables" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ファイアウォールは <a class="reference external" href="https://help.ubuntu.com/community/UFW">UFW</a> は使わず、iptablesとiptables-persistentを使っています。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">iptables</span><span class="o">-</span><span class="n">persistent</span>
+</pre></div>
+</div>
+<p>設定は以下の通りです。LXDとdockerを使っているのでそれらの設定も含まれています。</p>
+<p><code class="code docutils literal notranslate"><span class="pre">/etc/iptables/rules.v4</span></code></p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span># Generated by iptables-save v1.6.1 on Sat Dec  1 14:44:22 2018
+*filter
+:INPUT ACCEPT [238:15436]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [114:36056]
+:DOCKER - [0:0]
+:DOCKER-ISOLATION-STAGE-1 - [0:0]
+:DOCKER-ISOLATION-STAGE-2 - [0:0]
+:DOCKER-USER - [0:0]
+:WAN_IN - [0:0]
+:WAN_LOCAL - [0:0]
+-A INPUT -i lxdbr0 -p tcp -m tcp --dport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A INPUT -i lxdbr0 -p udp -m udp --dport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A INPUT -i lxdbr0 -p udp -m udp --dport 67 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A INPUT -i enp0s25 -j WAN_LOCAL
+-A FORWARD -o lxdbr0 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A FORWARD -i lxdbr0 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A FORWARD -i enp0s25 -j WAN_IN
+-A FORWARD -j DOCKER-USER
+-A FORWARD -j DOCKER-ISOLATION-STAGE-1
+-A FORWARD -o docker0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+-A FORWARD -o docker0 -j DOCKER
+-A FORWARD -i docker0 ! -o docker0 -j ACCEPT
+-A FORWARD -i docker0 -o docker0 -j ACCEPT
+-A OUTPUT -o lxdbr0 -p tcp -m tcp --sport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A OUTPUT -o lxdbr0 -p udp -m udp --sport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A OUTPUT -o lxdbr0 -p udp -m udp --sport 67 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A DOCKER-ISOLATION-STAGE-1 -i docker0 ! -o docker0 -j DOCKER-ISOLATION-STAGE-2
+-A DOCKER-ISOLATION-STAGE-1 -j RETURN
+-A DOCKER-ISOLATION-STAGE-2 -o docker0 -j DROP
+-A DOCKER-ISOLATION-STAGE-2 -j RETURN
+-A DOCKER-USER -j RETURN
+-A WAN_IN -m comment --comment WAN_IN-10 -m state --state RELATED,ESTABLISHED -j RETURN
+-A WAN_IN -m comment --comment WAN_IN-20 -m state --state INVALID -j DROP
+-A WAN_IN -s 192.168.1.0/24 -p icmp -m comment --comment WAN_IN-30 -j ACCEPT
+-A WAN_IN -m comment --comment &quot;WAN_IN-10000 default-action drop&quot; -j LOG --log-prefix &quot;[WAN_IN-default-D]&quot;
+-A WAN_IN -m comment --comment &quot;WAN_IN-10000 default-action drop&quot; -j DROP
+-A WAN_LOCAL -m comment --comment WAN_LOCAL-10 -m state --state RELATED,ESTABLISHED -j RETURN
+-A WAN_LOCAL -m comment --comment WAN_LOCAL-20 -m state --state INVALID -j DROP
+-A WAN_LOCAL -s 192.168.1.0/24 -p icmp -m comment --comment WAN_LOCAL-30 -j ACCEPT
+-A WAN_LOCAL -s 192.168.1.0/24 -p vrrp -m comment --comment WAN_LOCAL-40 -j ACCEPT
+-A WAN_LOCAL -m comment --comment &quot;WAN_LOCAL-10000 default-action drop&quot; -j LOG --log-prefix &quot;[WAN_LOCAL-default-D]&quot;
+-A WAN_LOCAL -m comment --comment &quot;WAN_LOCAL-10000 default-action drop&quot; -j DROP
+COMMIT
+# Completed on Sat Dec  1 14:44:22 2018
+# Generated by iptables-save v1.6.1 on Sat Dec  1 14:44:22 2018
+*mangle
+:PREROUTING ACCEPT [2054464:7594383842]
+:INPUT ACCEPT [1989651:7566369331]
+:FORWARD ACCEPT [64047:27954808]
+:OUTPUT ACCEPT [937916:146880228]
+:POSTROUTING ACCEPT [1005398:175609326]
+-A POSTROUTING -o lxdbr0 -p udp -m udp --dport 68 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j CHECKSUM --checksum-fill
+COMMIT
+# Completed on Sat Dec  1 14:44:22 2018
+# Generated by iptables-save v1.6.1 on Sat Dec  1 14:44:22 2018
+*nat
+:PREROUTING ACCEPT [9291:2179690]
+:INPUT ACCEPT [3252:483996]
+:OUTPUT ACCEPT [3623:517216]
+:POSTROUTING ACCEPT [3545:511992]
+-A POSTROUTING -s 10.70.121.0/24 ! -d 10.70.121.0/24 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j MASQUERADE
+COMMIT
+# Completed on Sat Dec  1 14:44:22 2018
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">/etc/iptables/rules.v6</span></code></p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span># Generated by ip6tables-save v1.6.1 on Mon Nov 12 18:31:46 2018
+*nat
+:PREROUTING ACCEPT [5513:616145]
+:INPUT ACCEPT [5243:585056]
+:OUTPUT ACCEPT [2714:318879]
+:POSTROUTING ACCEPT [2645:312423]
+-A POSTROUTING -s fd42:f7bd:987f:2f80::/64 ! -d fd42:f7bd:987f:2f80::/64 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j MASQUERADE
+COMMIT
+# Completed on Mon Nov 12 18:31:46 2018
+# Generated by ip6tables-save v1.6.1 on Mon Nov 12 18:31:46 2018
+*filter
+:INPUT ACCEPT [251:73519]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [226:60652]
+:WANv6_IN - [0:0]
+:WANv6_LOCAL - [0:0]
+-A INPUT -i lxdbr0 -p tcp -m tcp --dport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A INPUT -i lxdbr0 -p udp -m udp --dport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A INPUT -i lxdbr0 -p udp -m udp --dport 547 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A INPUT -i enp0s25 -j WANv6_LOCAL
+-A FORWARD -o lxdbr0 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A FORWARD -i lxdbr0 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A FORWARD -i enp0s25 -j WANv6_IN
+-A OUTPUT -o lxdbr0 -p tcp -m tcp --sport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A OUTPUT -o lxdbr0 -p udp -m udp --sport 53 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A OUTPUT -o lxdbr0 -p udp -m udp --sport 547 -m comment --comment &quot;generated for LXD network lxdbr0&quot; -j ACCEPT
+-A WANv6_IN -m comment --comment WANv6_IN-10 -m state --state RELATED,ESTABLISHED -j RETURN
+-A WANv6_IN -m comment --comment WANv6_IN-20 -m state --state INVALID -j DROP
+-A WANv6_IN -p ipv6-icmp -m comment --comment WANv6_IN-30 -j RETURN
+-A WANv6_IN -m comment --comment &quot;WANv6_IN-10000 default-action drop&quot; -j LOG --log-prefix &quot;[WANv6_IN-default-D]&quot;
+-A WANv6_IN -m comment --comment &quot;WANv6_IN-10000 default-action drop&quot; -j DROP
+-A WANv6_LOCAL -m comment --comment WANv6_LOCAL-10 -m state --state RELATED,ESTABLISHED -j RETURN
+-A WANv6_LOCAL -m comment --comment WANv6_LOCAL-20 -m state --state INVALID -j DROP
+-A WANv6_LOCAL -p ipv6-icmp -m comment --comment WANv6_LOCAL-30 -j RETURN
+-A WANv6_LOCAL -p udp -m comment --comment WANv6_LOCAL-40 -m udp --sport 547 --dport 546 -j RETURN
+-A WANv6_LOCAL -p ipip -m comment --comment WANv6_LOCAL-50 -j RETURN
+-A WANv6_LOCAL -p tcp -m comment --comment WANv6_LOCAL-60 -m tcp --dport 22 -j RETURN
+-A WANv6_LOCAL -m comment --comment &quot;WANv6_LOCAL-10000 default-action drop&quot; -j LOG --log-prefix &quot;[WANv6_LOCAL-default-D]&quot;
+-A WANv6_LOCAL -m comment --comment &quot;WANv6_LOCAL-10000 default-action drop&quot; -j DROP
+COMMIT
+# Completed on Mon Nov 12 18:31:46 2018
+</pre></div>
+</div>
+<p>ファイルの内容を変更したら以下のコマンドを実行して反映します。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">iptables</span><span class="o">-</span><span class="n">restore</span> <span class="o">&lt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v4</span>
+<span class="n">sudo</span> <span class="n">ip6tables</span><span class="o">-</span><span class="n">restore</span> <span class="o">&lt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v6</span>
+</pre></div>
+</div>
+<p>逆に設定をファイルに保存するには以下のコマンドを実行します。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">iptables</span><span class="o">-</span><span class="n">save</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v4</span>
+<span class="n">sudo</span> <span class="n">ip6tables</span><span class="o">-</span><span class="n">save</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v6</span>
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">/etc/iptables/rules.v{4,6}</span></code> の内容はbitbucket.orgのプライベートレポジトリで管理しています。</p>
+</div>
+<div class="section" id="keepalived">
+<h2>keepalivedの設定<a class="headerlink" href="#keepalived" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>keepalivedを使ってVIP（仮想IPアドレス）を設定しています。
+keepalivedは標準パッケージをインストールしました。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">keepalived</span>
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">/etc/keepalived/keepalived.conf</span></code> は以下の通りです。送信元のメールアドレスは途中を大文字にしてどこから送られたかを判別できるようにしています。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">global_defs</span> <span class="p">{</span>
+   <span class="n">notification_email</span> <span class="p">{</span>
+     <span class="n">john</span><span class="o">.</span><span class="n">doe</span><span class="o">+</span><span class="n">home</span><span class="nd">@example</span><span class="o">.</span><span class="n">com</span>
+   <span class="p">}</span>
+   <span class="n">notification_email_from</span> <span class="n">jOhn</span><span class="o">.</span><span class="n">doe</span><span class="nd">@example</span><span class="o">.</span><span class="n">com</span>
+   <span class="n">smtp_server</span> <span class="n">localhost</span>
+   <span class="n">smtp_connect_timeout</span> <span class="mi">30</span>
+   <span class="n">router_id</span> <span class="mi">1</span>
+<span class="p">}</span>
+
+<span class="n">include</span> <span class="n">vrrp</span><span class="o">.</span><span class="n">conf</span>
+</pre></div>
+</div>
+<p>beagleの <code class="code docutils literal notranslate"><span class="pre">/etc/keepalived/vrrp.conf</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vrrp_instance</span> <span class="n">VRRP1</span> <span class="p">{</span>
+  <span class="n">state</span> <span class="n">MASTER</span>
+  <span class="n">interface</span> <span class="n">enp3s0</span>
+  <span class="n">virtual_router_id</span> <span class="mi">1</span>
+  <span class="n">priority</span> <span class="mi">200</span>
+  <span class="n">advert_int</span> <span class="mi">1</span>
+  <span class="n">smtp_alert</span>
+  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
+    <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.2</span><span class="o">/</span><span class="mi">24</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">vrrp_instance</span> <span class="n">VRRP2</span> <span class="p">{</span>
+  <span class="n">state</span> <span class="n">MASTER</span>
+  <span class="n">interface</span> <span class="n">enp4s0</span>
+  <span class="n">virtual_router_id</span> <span class="mi">2</span>
+  <span class="n">priority</span> <span class="mi">200</span>
+  <span class="n">advert_int</span> <span class="mi">1</span>
+  <span class="n">smtp_alert</span>
+  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
+    <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="o">/</span><span class="mi">24</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>primergyの <code class="code docutils literal notranslate"><span class="pre">/etc/keepalived/vrrp.conf</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vrrp_instance</span> <span class="n">VRRP1</span> <span class="p">{</span>
+  <span class="n">state</span> <span class="n">BACKUP</span>
+  <span class="n">interface</span> <span class="n">enp0s25</span>
+  <span class="n">virtual_router_id</span> <span class="mi">1</span>
+  <span class="n">priority</span> <span class="mi">100</span>
+  <span class="n">advert_int</span> <span class="mi">1</span>
+  <span class="n">smtp_alert</span>
+  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
+    <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.2</span><span class="o">/</span><span class="mi">24</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">vrrp_instance</span> <span class="n">VRRP2</span> <span class="p">{</span>
+  <span class="n">state</span> <span class="n">BACKUP</span>
+  <span class="n">interface</span> <span class="n">enp2s0</span>
+  <span class="n">virtual_router_id</span> <span class="mi">2</span>
+  <span class="n">priority</span> <span class="mi">100</span>
+  <span class="n">advert_int</span> <span class="mi">1</span>
+  <span class="n">smtp_alert</span>
+  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
+    <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="o">/</span><span class="mi">24</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>stateとpriorityをbeagleとprimergyで上記のように設定することでbeagleのほうを優先するようにしています。</p>
+</div>
+<div class="section" id="dhcp">
+<h2>DHCPサーバの設定<a class="headerlink" href="#dhcp" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>DHCPサーバはisc-dhcp-serverパッケージを使っています。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">isc</span><span class="o">-</span><span class="n">dhcp</span><span class="o">-</span><span class="n">server</span>
+</pre></div>
+</div>
+<p>beagleの <code class="code docutils literal notranslate"><span class="pre">/etc/dhcp/dhcpd.conf</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">option</span> <span class="n">domain</span><span class="o">-</span><span class="n">name</span><span class="o">-</span><span class="n">servers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">;</span>
+
+<span class="n">default</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">600</span><span class="p">;</span>
+<span class="nb">max</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">7200</span><span class="p">;</span>
+
+<span class="n">ddns</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">style</span> <span class="n">none</span><span class="p">;</span>
+
+<span class="n">subnet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.0</span> <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span> <span class="p">{</span>
+  <span class="nb">range</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.20</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.99</span><span class="p">;</span>
+  <span class="n">option</span> <span class="n">routers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>primergyの <code class="code docutils literal notranslate"><span class="pre">/etc/dhcp/dhcpd.conf</span></code> は以下の通りです。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">option</span> <span class="n">domain</span><span class="o">-</span><span class="n">name</span><span class="o">-</span><span class="n">servers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">;</span>
+
+<span class="n">default</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">600</span><span class="p">;</span>
+<span class="nb">max</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">7200</span><span class="p">;</span>
+
+<span class="n">ddns</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">style</span> <span class="n">none</span><span class="p">;</span>
+
+<span class="n">subnet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.0</span> <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span> <span class="p">{</span>
+  <span class="nb">range</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.100</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.189</span><span class="p">;</span>
+  <span class="n">option</span> <span class="n">routers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>beagleとprimergyでDHCPのrangeを重ならないように設定し、ゲートウェイにはVIPを指定しています。こうすることで片方のサーバが停止してもThinkPadなどDHCPクライアントのマシンはそのまま通信できると同僚に教わりました。ありがとうございます！</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="install-sphinx-on-windows10.html" title="Windows 10にSphinxをインストール"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2018, Hiroaki Nakamura.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+    </div>
+  </body>
+</html>
