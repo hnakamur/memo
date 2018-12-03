@@ -39,6 +39,7 @@
 <li><a class="reference internal" href="#id2">構成図</a></li>
 <li><a class="reference internal" href="#id3">ホームゲートウェイの設定</a></li>
 <li><a class="reference internal" href="#id4">サーバのネットワーク設定</a></li>
+<li><a class="reference internal" href="#ipv4">IPv4フォワーディングの有効化</a></li>
 <li><a class="reference internal" href="#ipoe">IPoEの設定</a></li>
 <li><a class="reference internal" href="#iptables">iptablesの設定</a></li>
 <li><a class="reference internal" href="#keepalived">keepalivedの設定</a></li>
@@ -85,6 +86,15 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">作成日:</th><td class="field-body">2018-12-01</td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><table class="first docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">更新日:</th><td class="field-body">2018-12-04</td>
 </tr>
 </tbody>
 </table>
@@ -296,6 +306,18 @@ WiFiルータはブリッジモードを使用しています。</p>
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">netplan</span> <span class="pre">apply</span></code> コマンドで反映しました。</p>
+</div>
+<div class="section" id="ipv4">
+<h2>IPv4フォワーディングの有効化<a class="headerlink" href="#ipv4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>IPv4のルータとして機能させるため、以下のコマンドを実行してIPv4フォワーディングを有効化します。</p>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">sysctl</span> <span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">ip_forward</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
+<p>OS再起動時にもこの設定がされるように <code class="code docutils literal notranslate"><span class="pre">/etc/sysctl.d/99-sysctl.conf</span></code> 内の以下の行をアンコメントします。</p>
+<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment the next line to enable packet forwarding for IPv4</span>
+<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">ip_forward</span><span class="o">=</span><span class="mi">1</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="ipoe">
 <h2>IPoEの設定<a class="headerlink" href="#ipoe" title="このヘッドラインへのパーマリンク">¶</a></h2>
