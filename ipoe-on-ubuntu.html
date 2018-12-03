@@ -334,7 +334,14 @@ gateway_addr=&quot;${GATEWAY_ADDR}&quot;
 
 case &quot;$1&quot; in
 start)
-  local_addr=$(/sbin/ip a | /usr/bin/awk &#39;/mngtmpaddr/ {print substr($2, 1, index($2, &quot;/&quot;) - 1); exit}&#39;)
+  while :; do
+    local_addr=$(/sbin/ip a | /usr/bin/awk &#39;/mngtmpaddr/ {print substr($2, 1, index($2, &quot;/&quot;) - 1); exit}&#39;)
+    if [ -n &quot;$local_addr&quot; ]; then
+      break
+    fi
+
+    sleep 1
+  done
   /sbin/ip -6 tunnel add &quot;${tunnel_name}&quot; mode ipip6 remote &quot;${gateway_addr}&quot; local &quot;${local_addr}&quot; dev &quot;${wan_interface}&quot;
   /sbin/ip link set &quot;${tunnel_name}&quot; up
   /sbin/ip route delete default || :

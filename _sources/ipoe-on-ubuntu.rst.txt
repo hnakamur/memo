@@ -155,7 +155,14 @@ IPoEの設定
 
    case "$1" in
    start)
-     local_addr=$(/sbin/ip a | /usr/bin/awk '/mngtmpaddr/ {print substr($2, 1, index($2, "/") - 1); exit}')
+     while :; do
+       local_addr=$(/sbin/ip a | /usr/bin/awk '/mngtmpaddr/ {print substr($2, 1, index($2, "/") - 1); exit}')
+       if [ -n "$local_addr" ]; then
+	 break
+       fi
+
+       sleep 1
+     done
      /sbin/ip -6 tunnel add "${tunnel_name}" mode ipip6 remote "${gateway_addr}" local "${local_addr}" dev "${wan_interface}"
      /sbin/ip link set "${tunnel_name}" up
      /sbin/ip route delete default || :
