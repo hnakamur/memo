@@ -3,6 +3,7 @@ UbuntuでIPoE
 ==============
 
 * :作成日: 2018-12-01
+* :更新日: 2018-12-04
 
 はじめに
 ========
@@ -116,6 +117,23 @@ primergyの :code:`/etc/netplan/01-netcfg.yaml` は以下の通りです。
 	 dhcp6: no
 
 :code:`sudo netplan apply` コマンドで反映しました。
+
+IPv4フォワーディングの有効化
+=============================
+
+IPv4のルータとして機能させるため、以下のコマンドを実行してIPv4フォワーディングを有効化します。
+
+.. code:: console
+
+   sudo sysctl net.ipv4.ip_forward=1
+
+OS再起動時にもこの設定がされるように :code:`/etc/sysctl.d/99-sysctl.conf` 内の以下の行をアンコメントします。
+
+.. code:: text
+
+   # Uncomment the next line to enable packet forwarding for IPv4
+   net.ipv4.ip_forward=1
+
 
 IPoEの設定
 ==========
