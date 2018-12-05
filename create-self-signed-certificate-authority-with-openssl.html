@@ -8,10 +8,13 @@
     <link rel="stylesheet" href="_static/solar.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
@@ -97,12 +100,16 @@ OpenSSL 1.1.0g  2 Nov 2017
 <p>管理しやすくするため、OSのディストリビューションで用意されているファイルは使わず、独立した作業ディレクトリを作るという方針にします。</p>
 <p>カレントディレクトリに <code class="code docutils literal notranslate"><span class="pre">myCA</span></code> というディレクトリを作ってそこで管理することにします。以下のディレクトリ名、ファイル名、証明書のサブジェクトは適宜変更してください。</p>
 <div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">myCA</span>
-<span class="n">cd</span> <span class="n">myCA</span>
+</pre></div>
+</div>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">myCA</span>
 </pre></div>
 </div>
 <p>認証局の秘密鍵用のディレクトリを作って鍵を生成します。4096bitのRSAにしています。</p>
 <div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">private</span>
-<span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">out</span> <span class="n">private</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> <span class="mi">4096</span>
+</pre></div>
+</div>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">out</span> <span class="n">private</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> <span class="mi">4096</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -176,9 +183,15 @@ OpenSSL 1.1.0g  2 Nov 2017
 </div>
 <p>認証局の動作に必要なファイルとディレクトリを作成します。</p>
 <div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">newcerts</span>
-<span class="n">touch</span> <span class="n">index</span><span class="o">.</span><span class="n">txt</span>
-<span class="n">echo</span> <span class="s1">&#39;unique_subject = yes&#39;</span> <span class="o">&gt;</span> <span class="n">index</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">attr</span>
-<span class="n">echo</span> <span class="s1">&#39;01&#39;</span> <span class="o">&gt;</span> <span class="n">serial</span>
+</pre></div>
+</div>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">touch</span> <span class="n">index</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s1">&#39;unique_subject = yes&#39;</span> <span class="o">&gt;</span> <span class="n">index</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">attr</span>
+</pre></div>
+</div>
+<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s1">&#39;01&#39;</span> <span class="o">&gt;</span> <span class="n">serial</span>
 </pre></div>
 </div>
 </div>

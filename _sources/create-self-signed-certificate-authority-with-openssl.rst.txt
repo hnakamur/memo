@@ -26,6 +26,9 @@ OpenSSLで自己認証局を作る
 .. code:: console
 
    mkdir -p myCA
+
+.. code:: console
+
    cd myCA
 
 認証局の秘密鍵用のディレクトリを作って鍵を生成します。4096bitのRSAにしています。
@@ -33,6 +36,9 @@ OpenSSLで自己認証局を作る
 .. code:: console
 
    mkdir private
+
+.. code:: console
+
    openssl genrsa -out private/my-ca.key.pem 4096
 
 .. note::
@@ -115,8 +121,17 @@ OpenSSLで自己認証局を作る
 .. code:: console
 
    mkdir newcerts
+
+.. code:: console
+
    touch index.txt
+
+.. code:: console
+
    echo 'unique_subject = yes' > index.txt.attr
+
+.. code:: console
+
    echo '01' > serial
 
 自己認証局を使ってサーバ証明書を発行
