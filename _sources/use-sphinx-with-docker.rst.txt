@@ -227,3 +227,16 @@ Linux
    docker run --rm -it -v "$PWD:/documents" -p 8000:8000 -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0
 
 ブラウザで http://127.0.0.1:8000 を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は :code:`-p` オプションのコロンより前の番号を変えてください。
+
+ビルドしたドキュメントをGitHub Pagesで公開
+=============================================
+
+以下のコマンドを実行するとビルドしたHTMLをGitHub Pagesで公開できます。
+
+.. code-block:: console
+
+   git subtree push --prefix build/html/ origin gh-pages
+
+なお、これを行うためにはbuild以下のファイルもmasterブランチでコミットしておく必要がありました。
+
+また、GitHub Pagesを使うための設定として、一度 :code:`gh-pages` ブランチにプッシュした後でGitHubのプロジェクトの[Settings]のGitHub PagesセクションでSourceの下のドロップダウンで[gh-pages branch]を選んで[Save]ボタンを押す必要があります。
