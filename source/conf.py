@@ -50,6 +50,7 @@ extensions = [
     'sphinxcontrib.blockdiag',
     'sphinx.ext.graphviz',
     'sphinxcontrib.plantuml',
+    'sphinx_copybutton',
 ]
 
 blockdiag_fontpath = '/fonts/NotoSansCJKjp-Regular.ttf'
