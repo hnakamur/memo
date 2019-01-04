@@ -19,3 +19,5 @@ Sphinxは私のイメージでは1冊の本という感じで1つのテーマに
    ipoe-on-ubuntu
    create-self-signed-certificate-authority-with-openssl
    run-apache-trafficserver-tests-on-docker
+   setup-zabbix-postgresql-timescaledb-pipelinedb
+   force-delete-postgresql-database
