@@ -2,44 +2,610 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
-    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="PostgreSQLのデータベースを強制削除する" href="force-delete-postgresql-database.html" />
-    <link rel="prev" title="DockerでApache Traffic Serverのテストを実行する" href="run-apache-trafficserver-tests-on-docker.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
-<link href="_static/solarized-dark.css" rel="stylesheet">
+    <link rel="prev" title="DockerでApache Traffic Serverのテストを実行する" href="run-apache-trafficserver-tests-on-docker.html" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="shortcut icon" type="image/png" href="_static/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=0.8">
+    
+    
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
-             accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="force-delete-postgresql-database.html" title="PostgreSQLのデータベースを強制削除する"
-             accesskey="N">次へ</a> |</li>
-        <li class="right" >
-          <a href="run-apache-trafficserver-tests-on-docker.html" title="DockerでApache Traffic Serverのテストを実行する"
-             accesskey="P">前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+        <li class="responsive-menu"><a href="#sidebar-anchor" title="Navigation">&#9776;</a></li>
+        <li><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
+    
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="zabbixpostgresqltimescaledbpipelinedb">
+<h1>ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ<a class="headerlink" href="#zabbixpostgresqltimescaledbpipelinedb" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">作成日</dt>
+<dd class="field-odd"><p>2019-01-04</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="section" id="id1">
+<h2>はじめに<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Zabbix 4.0をPostgreSQL 11とTimescaleDBとPipelineDBでセットアップするメモです。
+Ubuntu 18.04 LTSでLXDコンテナ内で試しました。</p>
+</div>
+<div class="section" id="lxd">
+<h2>LXDコンテナ作成<a class="headerlink" href="#lxd" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>LXDでUbuntu 18.04 LTSのコンテナを作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">lxc launch ubuntu:18.04 zabbix</span>
+</pre></div>
+</div>
+<p>作成したコンテナ内でシェルを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">lxc exec zabbix bash</span>
+</pre></div>
+</div>
+<p>以降の処理はコンテナ内で実行します。上記の手順でLXDコンテナ内でrootユーザになっているのでsudoは不要ですが、LXDコンテナではない環境でインストールするときにも同じ手順が使えるように以下ではsudo付きで説明します。</p>
+</div>
+<div class="section" id="postgresql">
+<h2>PostgreSQLのインストール<a class="headerlink" href="#postgresql" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.postgresql.org/download/linux/ubuntu/">PostgreSQL: Linux downloads (Ubuntu)</a> の手順にしたがってインストールします。</p>
+<p>PostgreSQLのaptレポジトリを追加します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">echo &quot;deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -c -s)-pgdg main&quot; | sudo tee /etc/apt/sources.list.d/pgdg.list</span>
+</pre></div>
+</div>
+<p>レポジトリの署名キーを追加します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">curl -L https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -</span>
+</pre></div>
+</div>
+<p>レポジトリを追加したのでパッケージ情報をアップデートします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get update</span>
+</pre></div>
+</div>
+<p>PostgreSQL 11のパッケージをインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get -y install postgresql-11</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>インストール時に最後に以下のようなメッセージが表示されていますが、実際は既にmainという名前のデータベースが作成され、postgresqlという名前のサービスでデータベースサーバが起動された状態になっています。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Success. You can now start the database server using:
+
+    /usr/lib/postgresql/11/bin/pg_ctl -D /var/lib/postgresql/11/main -l logfile start
+
+Ver Cluster Port Status Owner    Data directory              Log file
+11  main    5432 down   postgres /var/lib/postgresql/11/main /var/log/postgresql/postgresql-11-main.log
+</pre></div>
+</div>
+<p>上のメッセージにあるとおり、データベースのディレクトリは/var/lib/postgresql/11/mainでログファイルは/var/log/postgresql/postgresql-11-main.logです。</p>
+<p>また設定ファイルのディレクトリは/etc/postgresql/11/mainです。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>以下のコマンドで管理者であるpostgresユーザでPostgreSQLに接続できます。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo -iu postgres psql</span>
+</pre></div>
+</div>
+<p>psqlのプロンプト <code class="code docutils literal notranslate"><span class="pre">postgres=#</span></code> で <code class="code docutils literal notranslate"><span class="pre">\q</span></code> を入力するとpsqlを抜けてシェルに戻ります。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">postgres=# \q</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>/etc/postgresql/11/main/pg_hba.conf を確認してみると以下の行があるので、接続用のユーザを作成して接続先に127.0.0.1を指定すればパスワードありで接続可能です。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># IPv4 local connections:
+host    all             all             127.0.0.1/32            md5
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="timescaledb">
+<h2>TimescaleDBのインストール<a class="headerlink" href="#timescaledb" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://docs.timescale.com/v1.1/getting-started/installation/ubuntu/installation-apt-ubuntu">TimescaleDB Docs | Installing</a> の手順にしたがってインストールします。</p>
+<p><a class="reference external" href="https://launchpad.net/~timescale/+archive/ubuntu/timescaledb-ppa">TimescaleDBのPPAのレポジトリ</a> を追加します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo add-apt-repository -y ppa:timescale/timescaledb-ppa</span>
+</pre></div>
+</div>
+<p>レポジトリを追加したのでパッケージ情報をアップデートします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get update</span>
+</pre></div>
+</div>
+<p>PostgreSQL 11用のTimescaleDBパッケージをインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get -y install timescaledb-postgresql-11</span>
+</pre></div>
+</div>
+<p>インストール時に以下のようなメッセージが表示されます。この後PipelineDBのインストール後にまとめて設定します。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>TimescaleDB has been installed. You need to update your postgresql.conf file
+to load the library by adding TimescaleDB to your shared_preload_libraries.
+Find the line below and change the value as shown (uncomment if needed):
+
+shared_preload_libraries = &#39;timescaledb&#39;
+</pre></div>
+</div>
+<p><a class="reference external" href="https://docs.timescale.com/v1.1/using-timescaledb/telemetry">Telemetry and Version Checking</a> で説明されているようにTimescaleDBは製品の改善のために利用の統計情報をデフォルトで送信するようになっています。</p>
+<p>これを無効にするには以下のコマンドを実行します。PostgreSQLのサービスの再起動も必要だと思いますが、これは以下で行います。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">echo timescaledb.telemetry_level=off | sudo tee -a /etc/postgresql/11/main/postgresql.conf</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>統計情報を送信していることは、以下の手順で <code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">-iu</span> <span class="pre">postgres</span> <span class="pre">psql</span> <span class="pre">-c</span> <span class="pre">&quot;CREATE</span> <span class="pre">EXTENSION</span> <span class="pre">IF</span> <span class="pre">NOT</span> <span class="pre">EXISTS</span> <span class="pre">timescaledb</span> <span class="pre">CASCADE;&quot;</span> <span class="pre">zabbix</span></code> と実行したときに以下のようにメッセージが表示されて説明がありました。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>WARNING:
+WELCOME TO
+ _____ _                               _     ____________
+|_   _(_)                             | |    |  _  \ ___ \
+  | |  _ _ __ ___   ___  ___  ___ __ _| | ___| | | | |_/ /
+  | | | |  _ ` _ \ / _ \/ __|/ __/ _` | |/ _ \ | | | ___ \
+  | | | | | | | | |  __/\__ \ (_| (_| | |  __/ |/ /| |_/ /
+  |_| |_|_| |_| |_|\___||___/\___\__,_|_|\___|___/ \____/
+               Running version 1.1.1
+For more information on TimescaleDB, please visit the following links:
+
+ 1. Getting started: https://docs.timescale.com/getting-started
+ 2. API reference documentation: https://docs.timescale.com/api
+ 3. How TimescaleDB is designed: https://docs.timescale.com/introduction/architecture
+
+Note: TimescaleDB collects anonymous reports to better understand and assist our users.
+For more information and how to disable, please see our docs https://docs.timescaledb.com/using-timescaledb/telemetry.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pipelinedb">
+<h2>PipelineDBのインストール<a class="headerlink" href="#pipelinedb" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="http://docs.pipelinedb.com/installation.html">PipelineDB Installation — PipelineDB 1.0.0 documentation</a> の手順にしたがってインストールします。</p>
+<p>インストールスクリプトをダウンロードします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo curl -LO http://download.pipelinedb.com/apt.sh</span>
+</pre></div>
+</div>
+<p>実行前に内容を確認します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">vim apt.sh</span>
+</pre></div>
+</div>
+<p>インストールスクリプトを実行します。実際にどういうコマンドが実行されたかを確認したいので <code class="code docutils literal notranslate"><span class="pre">bash</span></code> の <code class="code docutils literal notranslate"><span class="pre">-x</span></code> オプションを指定して実行します。 <code class="code docutils literal notranslate"><span class="pre">apt-transport-https</span></code> パッケージのインストール、レポジトリの追加、GPGキーの追加、 <code class="code docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">update</span></code> が実行されます。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo bash -x apt.sh</span>
+</pre></div>
+</div>
+<p>PostgreSQL 11用のPipelineDBパッケージをインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get -y install pipelinedb-postgresql-11</span>
+</pre></div>
+</div>
+<p>最後に以下のようなメッセージが表示されます。次項でTimescaleDBの設定と合わせて設定します。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Next, edit &lt;data directory&gt;/postgresql.conf and set:
+
+  shared_preload_libraries = &#39;pipelinedb&#39;
+  max_worker_processes = 128
+
+Once your database is running, create the pipelinedb extension:
+
+  psql -c &#39;CREATE EXTENSION pipelinedb&#39;
+</pre></div>
+</div>
+</div>
+<div class="section" id="timescaledbpipelinedb">
+<h2>TimescaleDBとPipelineDBの設定<a class="headerlink" href="#timescaledbpipelinedb" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>上記でインストール時にメッセージで出力された設定を行います。</p>
+<p>まずPostgreSQLの設定ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/postgresql/11/main/postgresql.conf</span></code> 内で変更前の <code class="code docutils literal notranslate"><span class="pre">shared_preload_libraries</span></code> の設定を確認します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">grep shared_preload_libraries /etc/postgresql/11/main/postgresql.conf</span>
+</pre></div>
+</div>
+<p>実行してみると以下のようになりました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> grep shared_preload_libraries /etc/postgresql/11/main/postgresql.conf
+<span class="gp">#</span><span class="nv">shared_preload_libraries</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># (change requires restart)</span>
+</pre></div>
+</div>
+<p>次にPostgreSQLの設定ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/postgresql/11/main/postgresql.conf</span></code> 内で変更前の <code class="code docutils literal notranslate"><span class="pre">max_worker_processes</span></code> の設定を確認します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">grep max_worker_processes /etc/postgresql/11/main/postgresql.conf</span>
+</pre></div>
+</div>
+<p>実行してみると以下のようになりました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> grep max_worker_processes /etc/postgresql/11/main/postgresql.conf
+<span class="gp">#</span><span class="nv">max_worker_processes</span> <span class="o">=</span> <span class="m">8</span>               <span class="c1"># (change requires restart)</span>
+<span class="gp">#</span><span class="nv">max_parallel_workers</span> <span class="o">=</span> <span class="m">8</span>               <span class="c1"># maximum number of max_worker_processes that</span>
+<span class="gp">#</span><span class="nv">max_logical_replication_workers</span> <span class="o">=</span> <span class="m">4</span>    <span class="c1"># taken from max_worker_processes</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://www.postgresql.org/docs/11/runtime-config-client.html#GUC-SHARED-PRELOAD-LIBRARIES">shared_preload_libraries</a> によると複数のライブラリを指定するにはカンマ区切りにすれば良いそうです。ということで、以下のように <code class="code docutils literal notranslate"><span class="pre">shared_preload_libraries</span></code> と <code class="code docutils literal notranslate"><span class="pre">max_worker_processes</span></code> を設定します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo sed -i -e &quot;s/^#shared_preload_libraries = &#39;&#39;/shared_preload_libraries = &#39;timescaledb,pipelinedb&#39;/;s/^#max_worker_processes = 8/max_worker_processes = 128/&quot; /etc/postgresql/11/main/postgresql.conf</span>
+</pre></div>
+</div>
+<p>以下のコマンドで変更結果を確認します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">grep -E &#39;(shared_preload_libraries|max_worker_processes)&#39; /etc/postgresql/11/main/postgresql.conf</span>
+</pre></div>
+</div>
+<p>結果は以下のようになり期待通り変更できていました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> grep -E <span class="s1">&#39;(shared_preload_libraries|max_worker_processes)&#39;</span> /etc/postgresql/11/main/postgresql.conf
+<span class="go">max_worker_processes = 128              # (change requires restart)</span>
+<span class="gp">#</span><span class="nv">max_parallel_workers</span> <span class="o">=</span> <span class="m">8</span>               <span class="c1"># maximum number of max_worker_processes that</span>
+<span class="gp">#</span><span class="nv">max_logical_replication_workers</span> <span class="o">=</span> <span class="m">4</span>    <span class="c1"># taken from max_worker_processes</span>
+<span class="go">shared_preload_libraries = &#39;timescaledb,pipelinedb&#39;     # (change requires restart)</span>
+</pre></div>
+</div>
+<p>設定変更を反映させるためPostgreSQLのサービスを再起動します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl restart postgresql</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="zabbix">
+<h2>Zabbixのインストール<a class="headerlink" href="#zabbix" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.zabbix.com/documentation/4.0/manual/installation/install_from_packages/debian_ubuntu">2 Debian/Ubuntu/Raspbian [Zabbix Documentation 4.0]</a> の手順にしたがってインストールします。</p>
+<p>Zabbixのaptレポジトリを追加するためのパッケージファイルをダウンロードします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo curl -LO https://repo.zabbix.com/zabbix/4.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.0-2+bionic_all.deb</span>
+</pre></div>
+</div>
+<p>Zabbixのaptレポジトリを追加するためのパッケージファイルをインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo dpkg -i zabbix-release_4.0-2+bionic_all.deb</span>
+</pre></div>
+</div>
+<p>レポジトリを追加したのでパッケージ情報をアップデートします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get update</span>
+</pre></div>
+</div>
+<p>PostgreSQL用のZabbixサーバ、Zabbixのフロントエンド、PHPのPostgreSQLモジュールをインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get -y install zabbix-server-pgsql zabbix-frontend-php php-pgsql</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>インストールの途中で以下のようなメッセージが表示されていました。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>adduser: Warning: The home directory `/var/lib/snmp&#39; does not belong to the user you are currently creating.
+Created symlink /etc/systemd/system/multi-user.target.wants/snmpd.service → /lib/systemd/system/snmpd.service.
+</pre></div>
+</div>
+<p>/etc/passwd を確認するとzabbixユーザの他にDebian-snmpというユーザが作られたようです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> grep -E <span class="s1">&#39;(/var/lib/snmp|zabbix)&#39;</span> /etc/passwd
+<span class="go">Debian-snmp:x:112:117::/var/lib/snmp:/bin/false</span>
+<span class="go">zabbix:x:113:118::/var/lib/zabbix/:/usr/sbin/nologin</span>
+</pre></div>
+</div>
+<p>/var/lib/snmp の所有者を確認するとDebian-snmpユーザだったので上記のメッセージが出たあとに所有者が変更されたようです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> ls -ld /var/lib/snmp
+<span class="go">drwxr-xr-x 3 Debian-snmp Debian-snmp 4096 Dec 31 01:04 /var/lib/snmp</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>Zabbixのデータベース作成<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.zabbix.com/jp/download?zabbix=4.0&amp;os_distribution=ubuntu&amp;os_version=bionic&amp;db=PostgreSQL">Zabbix 4.0 LTS, Ubuntu 18.04, PostgreSQLのダウンロードページ</a> を参考にして以下の手順で作成します。</p>
+<p>PostgreSQLにzabbixというユーザを作成します。パスワードのプロンプトが出ますのでzabbixユーザ用に設定したいパスワードを入力します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo -iu postgres createuser -P zabbix</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p><code class="code docutils literal notranslate"><span class="pre">-P</span></code> オプションを忘れてパスワード無しでユーザを作成してしまった場合、以下のように実行すればパスワードを設定できます。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo -iu postgres psql -c &quot;ALTER USER zabbix WITH ENCRYPTED PASSWORD &#39;設定したいパスワード&#39;;&quot;</span>
+</pre></div>
+</div>
+</div>
+<p>PostgreSQLにzabbixというデータベースをzabbixユーザを所有者にして作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo -iu postgres createdb -O zabbix zabbix</span>
+</pre></div>
+</div>
+<p>zabbixデータベース内にTimescaleDBのエクステンションを作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo -iu postgres psql -c &quot;CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;&quot; zabbix</span>
+</pre></div>
+</div>
+<p>zabbixデータベース内にPipelineDBのエクステンションを作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo -iu postgres psql -c &quot;CREATE EXTENSION IF NOT EXISTS pipelinedb&quot; zabbix</span>
+</pre></div>
+</div>
+<p>Zabbix用のデータベーススキーマを作成するSQLをzabbixユーザで実行します。パスワードプロンプトが出ますので上記で設定したパスワードを入力してください。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">zcat /usr/share/doc/zabbix-server-pgsql/create.sql.gz | psql -h localhost -U zabbix zabbix</span>
+</pre></div>
+</div>
+<p>上記で作成したスキーマに含まれるhistoryテーブルに対してTimescaleDBのhypertableを作成します。パスワードプロンプトが出ますので上記で設定したパスワードを入力してください。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">psql -h localhost -U zabbix -c &quot;SELECT create_hypertable(&#39;history&#39;, &#39;clock&#39;, chunk_time_interval =&gt; 2592000)&quot; zabbix</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>historyテーブルの定義は以下のようになっており、clockカラムの型はtimestamp with time zoneやtimestampではなくintegerになっています。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> sudo -iu postgres psql -c <span class="s1">&#39;\d history&#39;</span> zabbix
+<span class="go">                 Table &quot;public.history&quot;</span>
+<span class="go"> Column |     Type      | Collation | Nullable | Default</span>
+<span class="go">--------+---------------+-----------+----------+---------</span>
+<span class="go"> itemid | bigint        |           | not null |</span>
+<span class="go"> clock  | integer       |           | not null | 0</span>
+<span class="go"> value  | numeric(16,4) |           | not null | 0.0000</span>
+<span class="go"> ns     | integer       |           | not null | 0</span>
+<span class="go">Indexes:</span>
+<span class="go">    &quot;history_1&quot; btree (itemid, clock)</span>
+<span class="go">    &quot;history_clock_idx&quot; btree (clock DESC)</span>
+<span class="go">Triggers:</span>
+<span class="go">    ts_insert_blocker BEFORE INSERT ON history FOR EACH ROW EXECUTE PROCEDURE _timescaledb_internal.insert_blocker()</span>
+<span class="go">Number of child tables: 1 (Use \d+ to list them.)</span>
+</pre></div>
+</div>
+<p>このため <a class="reference external" href="https://github.com/timescale/timescaledb/issues/150">Time column as integer type fails with default config (&quot;PGRES_FATAL_ERROR:ERROR value 2592000000000 is out of range&quot;) · Issue #150 · timescale/timescaledb</a> にあるように上記のcreate_hypertableには <code class="code docutils literal notranslate"><span class="pre">chunk_time_interval</span> <span class="pre">=&gt;</span> <span class="pre">2592000</span></code> を指定する必要があります。</p>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>Zabbixサーバの設定<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.zabbix.com/jp/download?zabbix=4.0&amp;os_distribution=ubuntu&amp;os_version=bionic&amp;db=PostgreSQL">Zabbix 4.0 LTS, Ubuntu 18.04, PostgreSQLのダウンロードページ</a> を参考にして以下の手順で作成します。</p>
+<p>以下のコマンドを実行し <code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/zabbix_server.conf</span></code> を編集して <code class="code docutils literal notranslate"><span class="pre">DBPassword</span></code> の値を設定します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo vim /etc/zabbix/zabbix_server.conf</span>
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">DBPassword</span></code> の設定内容は以下のようにします。コメントの部分は元からあるので <code class="code docutils literal notranslate"><span class="pre">DBPassword=上記で設定したパスワード</span></code> の行を追加します。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>### Option: DBPassword
+#       Database password.
+#       Comment this line if no password is used.
+#
+# Mandatory: no
+# Default:
+# DBPassword=
+
+DBPassword=上記で設定したパスワード
+</pre></div>
+</div>
+<p>以下のコマンドで現在のZabbixサーバのサービスの起動状態を確認します。停止状態になっているはずです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl status zabbix-server</span>
+</pre></div>
+</div>
+<p>以下のコマンドで現在のZabbixサーバのサービスを起動します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl status zabbix-server</span>
+</pre></div>
+</div>
+<p>再び以下のコマンドで現在のZabbixサーバのサービスの起動状態を確認します。今度は起動状態になっているはずです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl status zabbix-server</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>Zabbixフロントエンドの設定<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><a class="reference external" href="https://www.zabbix.com/jp/download?zabbix=4.0&amp;os_distribution=ubuntu&amp;os_version=bionic&amp;db=PostgreSQL">Zabbix 4.0 LTS, Ubuntu 18.04, PostgreSQLのダウンロードページ</a> からリンクされている <a class="reference external" href="https://www.zabbix.com/documentation/4.0/manual/installation/install#installing_frontend">3 Installation from sources [Zabbix Documentation 4.0]</a>　を参考に以下のように設定します。</p>
+<p><code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/apache.conf</span></code> を編集して <code class="code docutils literal notranslate"><span class="pre">&lt;IfModule</span> <span class="pre">mod_php7.c&gt;</span></code> 内の date.timezone の値を設定します。ここでは <code class="code docutils literal notranslate"><span class="pre">Asia/Tokyo</span></code> にしています。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo vim /etc/zabbix/apache.conf</span>
+</pre></div>
+</div>
+<p>変更前は以下のようになっていました。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;IfModule mod_php7.c&gt;
+    php_value max_execution_time 300
+    php_value memory_limit 128M
+    php_value post_max_size 16M
+    php_value upload_max_filesize 2M
+    php_value max_input_time 300
+    php_value max_input_vars 10000
+    php_value always_populate_raw_post_data -1
+    # php_value date.timezone Europe/Riga
+&lt;/IfModule&gt;
+</pre></div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">date.timezone</span></code> の行を以下のように書き換えました。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;IfModule mod_php7.c&gt;
+    php_value max_execution_time 300
+    php_value memory_limit 128M
+    php_value post_max_size 16M
+    php_value upload_max_filesize 2M
+    php_value max_input_time 300
+    php_value max_input_vars 10000
+    php_value always_populate_raw_post_data -1
+    php_value date.timezone Asia/Tokyo
+&lt;/IfModule&gt;
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p><code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/apache.conf</span></code> は以下のようにapache2から参照されるようになっていました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> ls -l /etc/apache2/conf-available/zabbix.conf /etc/apache2/conf-enabled/zabbix.conf
+<span class="go">lrwxrwxrwx 1 root root 23 Dec 31 22:41 /etc/apache2/conf-available/zabbix.conf -&gt; /etc/zabbix/apache.conf</span>
+<span class="go">lrwxrwxrwx 1 root root 29 Dec 31 22:41 /etc/apache2/conf-enabled/zabbix.conf -&gt; ../conf-available/zabbix.conf</span>
+</pre></div>
+</div>
+<p>またapache2のサイト設定ファイルは以下のようになっていました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> ls -l /etc/apache2/sites-available/
+<span class="go">total 12</span>
+<span class="go">-rw-r--r-- 1 root root 1332 Oct 10 18:59 000-default.conf</span>
+<span class="go">-rw-r--r-- 1 root root 6338 Oct 10 18:59 default-ssl.conf</span>
+<span class="gp">root@zabbix:~#</span> ls -l /etc/apache2/sites-enabled/
+<span class="go">total 0</span>
+<span class="go">lrwxrwxrwx 1 root root 35 Dec 31 22:41 000-default.conf -&gt; ../sites-available/000-default.conf</span>
+</pre></div>
+</div>
+</div>
+<p><a class="reference external" href="https://www.zabbix.com/documentation/4.0/manual/installation/install#installing_zabbix_web_interface">3 Installation from sources [Zabbix Documentation 4.0]</a> を参考に、以下のようにしてZabbixフロントエンドのPHPファイルをapache2のドキュメントルート配下にコピーしました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo cp -pr /usr/share/zabbix /var/www/html/</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>以下のように <code class="code docutils literal notranslate"><span class="pre">/var/www/html/zabbix/index.php</span></code> というファイルが出来ていればOKです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> ls /var/www/html/zabbix/index.php
+<span class="go">/var/www/html/zabbix/index.php</span>
+</pre></div>
+</div>
+</div>
+<p><code class="code docutils literal notranslate"><span class="pre">/</span></code> を <code class="code docutils literal notranslate"><span class="pre">/zabbix</span></code> にリダイレクトするように設定します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo vim /etc/apache2/mods-enabled/alias.conf</span>
+</pre></div>
+</div>
+<p>変更前の設定内容は以下のとおりでした。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;IfModule alias_module&gt;
+        # Aliases: Add here as many aliases as you need (with no limit). The format is
+        # Alias fakename realname
+        #
+        # Note that if you include a trailing / on fakename then the server will
+        # require it to be present in the URL.  So &quot;/icons&quot; isn&#39;t aliased in this
+        # example, only &quot;/icons/&quot;.  If the fakename is slash-terminated, then the
+        # realname must also be slash terminated, and if the fakename omits the
+        # trailing slash, the realname must also omit it.
+        #
+        # We include the /icons/ alias for FancyIndexed directory listings.  If
+        # you do not use FancyIndexing, you may comment this out.
+
+        Alias /icons/ &quot;/usr/share/apache2/icons/&quot;
+
+        &lt;Directory &quot;/usr/share/apache2/icons&quot;&gt;
+                Options FollowSymlinks
+                AllowOverride None
+                Require all granted
+        &lt;/Directory&gt;
+
+&lt;/IfModule&gt;
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+</pre></div>
+</div>
+<p>以下のように <code class="code docutils literal notranslate"><span class="pre">RedirectMatch</span> <span class="pre">permanent</span> <span class="pre">&quot;^/$&quot;</span> <span class="pre">&quot;/zabbix&quot;</span></code> の行を追加します。</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;IfModule alias_module&gt;
+        # Aliases: Add here as many aliases as you need (with no limit). The format is
+        # Alias fakename realname
+        #
+        # Note that if you include a trailing / on fakename then the server will
+        # require it to be present in the URL.  So &quot;/icons&quot; isn&#39;t aliased in this
+        # example, only &quot;/icons/&quot;.  If the fakename is slash-terminated, then the
+        # realname must also be slash terminated, and if the fakename omits the
+        # trailing slash, the realname must also omit it.
+        #
+        # We include the /icons/ alias for FancyIndexed directory listings.  If
+        # you do not use FancyIndexing, you may comment this out.
+
+        Alias /icons/ &quot;/usr/share/apache2/icons/&quot;
+
+        &lt;Directory &quot;/usr/share/apache2/icons&quot;&gt;
+                Options FollowSymlinks
+                AllowOverride None
+                Require all granted
+        &lt;/Directory&gt;
+
+        RedirectMatch permanent &quot;^/$&quot; &quot;/zabbix&quot;
+
+&lt;/IfModule&gt;
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+</pre></div>
+</div>
+<p>apache2のサービスを再起動します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">systemctl restart apache2</span>
+</pre></div>
+</div>
+<p>ウェブブラウザで <code class="code docutils literal notranslate"><span class="pre">http://コンテナのIPアドレス/zabbix</span></code> を開くとZabbixフロントエンドのセットアップ画面になります。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>LXDコンテナのホストと別のマシンからアクセスする場合は、LXDホストにnginxを入れてリバースプロキシするか <a class="reference external" href="https://gihyo.jp/admin/serial/01/ubuntu-recipe/0535?page=4">第535回　LXD 3.0のネットワーク設定：Ubuntu Weekly Recipe｜gihyo.jp … 技術評論社</a> の「特定のアドレス・ポートを公開する」の手順でコンテナのポートを公開してください。</p>
+<p>例えばzabbixというコンテナのIPアドレスが10.70.121.121で、コンテナのポート80をLXDをホストの8080で公開するには以下のようにします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">lxc config device add zabbix http proxy listen=tcp:0.0.0.0:8080 connect=tcp:10.70.121.121:80 bind=host</span>
+</pre></div>
+</div>
+<p>作成したプロキシの情報確認はLXDホストで以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">lxc config device show zabbix</span>
+</pre></div>
+</div>
+<p>実行例は以下のようになります。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">LXDホスト$ lxc config device show zabbix</span>
+<span class="go">http:</span>
+<span class="go">  bind: host</span>
+<span class="go">  connect: tcp:10.70.121.121:80</span>
+<span class="go">  listen: tcp:0.0.0.0:80</span>
+<span class="go">  type: proxy</span>
+</pre></div>
+</div>
+<p>上記で作成したプロキシを削除するには以下のようにします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">lxc config device rm zabbix http</span>
+</pre></div>
+</div>
+</div>
+<p>セットアップ画面では以下のように操作します。</p>
+<ol class="arabic simple">
+<li><p>タイトルがCheck of pre-requisitesのページでは一番右の列が全てOKになっていることを確認し、[Next step]ボタンを押します。</p></li>
+<li><p>タイトルがConfigure DB connectionのページではDatabase TypeがPostgreSQLになっていることを確認し、Passwordの欄に上記で設定したパスワードを入力して[Next step]ボタンを押します。</p></li>
+<li><p>タイトルがZabbix server detailsのページはそのまま[Next step]ボタンを押します。</p></li>
+<li><p>Pre-installation summaryのページで設定内容を確認し、問題なければ[Next step]ボタンを押します。</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">Congratulations!</span> <span class="pre">You</span> <span class="pre">have</span> <span class="pre">successfully</span> <span class="pre">installed</span> <span class="pre">Zabbix</span> <span class="pre">frontend.</span></code> と表示されれば成功です。[Finish]ボタンを押すとZabbixのログイン画面が表示されます。</p></li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>上記の <code class="code docutils literal notranslate"><span class="pre">Congratulations!</span> <span class="pre">You</span> <span class="pre">have</span> <span class="pre">successfully</span> <span class="pre">installed</span> <span class="pre">Zabbix</span> <span class="pre">frontend.</span></code> のメッセージの下に <code class="code docutils literal notranslate"><span class="pre">Configuration</span> <span class="pre">file</span> <span class="pre">&quot;/usr/share/zabbix/conf/zabbix.conf.php&quot;</span> <span class="pre">created.</span></code> と表示されていました。</p>
+<p>確認してみると <code class="code docutils literal notranslate"><span class="pre">/usr/share/zabbix/conf/zabbix.conf.php</span></code> と <code class="code docutils literal notranslate"><span class="pre">/var/www/html/zabbix/conf/zabbix.conf.php</span></code> はともに <code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/web/zabbix.conf.php</span></code> へのシンボリックリンクになっていました。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">root@zabbix:~#</span> ls -l /usr/share/zabbix/conf/zabbix.conf.php
+<span class="go">lrwxrwxrwx 1 root root 31 Dec 20 09:50 /usr/share/zabbix/conf/zabbix.conf.php -&gt; /etc/zabbix/web/zabbix.conf.php</span>
+<span class="gp">root@zabbix:~#</span> ls -l /var/www/html/zabbix/conf/zabbix.conf.php
+<span class="go">lrwxrwxrwx 1 root root 31 Dec 20 09:50 /var/www/html/zabbix/conf/zabbix.conf.php -&gt; /etc/zabbix/web/zabbix.conf.php</span>
+</pre></div>
+</div>
+<p>/etc/zabbix/web/zabbix.conf.php の内容は以下のようになっていました。</p>
+<div class="highlight-php notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?php</span>
+<span class="c1">// Zabbix GUI configuration file.</span>
+<span class="k">global</span> <span class="nv">$DB</span><span class="p">;</span>
+
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;TYPE&#39;</span><span class="p">]</span>     <span class="o">=</span> <span class="s1">&#39;POSTGRESQL&#39;</span><span class="p">;</span>
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;SERVER&#39;</span><span class="p">]</span>   <span class="o">=</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">;</span>
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;PORT&#39;</span><span class="p">]</span>     <span class="o">=</span> <span class="s1">&#39;0&#39;</span><span class="p">;</span>
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;DATABASE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;zabbix&#39;</span><span class="p">;</span>
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;USER&#39;</span><span class="p">]</span>     <span class="o">=</span> <span class="s1">&#39;zabbix&#39;</span><span class="p">;</span>
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;PASSWORD&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;上記で設定したパスワード&#39;</span><span class="p">;</span>
+
+<span class="c1">// Schema name. Used for IBM DB2 and PostgreSQL.</span>
+<span class="nv">$DB</span><span class="p">[</span><span class="s1">&#39;SCHEMA&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+
+<span class="nv">$ZBX_SERVER</span>      <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span><span class="p">;</span>
+<span class="nv">$ZBX_SERVER_PORT</span> <span class="o">=</span> <span class="s1">&#39;10051&#39;</span><span class="p">;</span>
+<span class="nv">$ZBX_SERVER_NAME</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">;</span>
+
+<span class="nv">$IMAGE_FORMAT_DEFAULT</span> <span class="o">=</span> <span class="nx">IMAGE_FORMAT_PNG</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>Zabbixフロントエンドへのログイン<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ウェブブラウザで <code class="code docutils literal notranslate"><span class="pre">http://コンテナのIPアドレス/zabbix</span></code> を開くとZabbixのログイン画面が表示されます。初期設定ではユーザ名 <code class="code docutils literal notranslate"><span class="pre">Admin</span></code> 、パスワードは <code class="code docutils literal notranslate"><span class="pre">zabbix</span></code> でログイン可能です。ログイン後ページ右上の人のアイコンをクリックしてパスワードを変更してください。</p>
+</div>
+<div class="section" id="id7">
+<h2>Zabbixエージェントのインストール<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>以下のコマンドを実行してZabbixエージェントをインストールします。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt-get -y install zabbix-agent</span>
+</pre></div>
+</div>
+<p>インストール後以下の手順でZabbixエージェントからのデータが来ていることを確認します。</p>
+<ol class="arabic simple">
+<li><p>Zabbixのフロントエンドで[Monitoring]/[Latest data]メニューを選択。</p></li>
+<li><p>フィルタのフォームのHostsの[Select]ボタンを押しポップアップが表示されたらZabbix serverを選んで[Select]を押す。</p></li>
+<li><p>ポップアップが閉じたら[Apply]を押す。</p></li>
+<li><p>フィルタのフォームの下に最新データ一覧が表示され、Last checkの時刻がほぼ現在日時になっていればOK。</p></li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
+    <a id="sidebar-anchor"></a>
+    
+
+  <h3><a href="index.html">目次</a></h3>
   <ul>
 <li><a class="reference internal" href="#">ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ</a><ul>
 <li><a class="reference internal" href="#id1">はじめに</a></li>
@@ -77,597 +643,32 @@
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="検索" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="zabbixpostgresqltimescaledbpipelinedb">
-<h1>ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ<a class="headerlink" href="#zabbixpostgresqltimescaledbpipelinedb" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<ul class="simple">
-<li><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">作成日:</th><td class="field-body">2019-01-04</td>
-</tr>
-</tbody>
-</table>
-</li>
-</ul>
-<div class="section" id="id1">
-<h2>はじめに<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>Zabbix 4.0をPostgreSQL 11とTimescaleDBとPipelineDBでセットアップするメモです。
-Ubuntu 18.04 LTSでLXDコンテナ内で試しました。</p>
-</div>
-<div class="section" id="lxd">
-<h2>LXDコンテナ作成<a class="headerlink" href="#lxd" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>LXDでUbuntu 18.04 LTSのコンテナを作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lxc</span> <span class="n">launch</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">18.04</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<p>作成したコンテナ内でシェルを実行します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lxc</span> <span class="n">exec</span> <span class="n">zabbix</span> <span class="n">bash</span>
-</pre></div>
-</div>
-<p>以降の処理はコンテナ内で実行します。上記の手順でLXDコンテナ内でrootユーザになっているのでsudoは不要ですが、LXDコンテナではない環境でインストールするときにも同じ手順が使えるように以下ではsudo付きで説明します。</p>
-</div>
-<div class="section" id="postgresql">
-<h2>PostgreSQLのインストール<a class="headerlink" href="#postgresql" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://www.postgresql.org/download/linux/ubuntu/">PostgreSQL: Linux downloads (Ubuntu)</a> の手順にしたがってインストールします。</p>
-<p>PostgreSQLのaptレポジトリを追加します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s2">&quot;deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -c -s)-pgdg main&quot;</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apt</span><span class="o">/</span><span class="n">sources</span><span class="o">.</span><span class="n">list</span><span class="o">.</span><span class="n">d</span><span class="o">/</span><span class="n">pgdg</span><span class="o">.</span><span class="n">list</span>
-</pre></div>
-</div>
-<p>レポジトリの署名キーを追加します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">curl</span> <span class="o">-</span><span class="n">L</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">postgresql</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">media</span><span class="o">/</span><span class="n">keys</span><span class="o">/</span><span class="n">ACCC4CF8</span><span class="o">.</span><span class="n">asc</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">key</span> <span class="n">add</span> <span class="o">-</span>
-</pre></div>
-</div>
-<p>レポジトリを追加したのでパッケージ情報をアップデートします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
-</pre></div>
-</div>
-<p>PostgreSQL 11のパッケージをインストールします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">postgresql</span><span class="o">-</span><span class="mi">11</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>インストール時に最後に以下のようなメッセージが表示されていますが、実際は既にmainという名前のデータベースが作成され、postgresqlという名前のサービスでデータベースサーバが起動された状態になっています。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Success</span><span class="o">.</span> <span class="n">You</span> <span class="n">can</span> <span class="n">now</span> <span class="n">start</span> <span class="n">the</span> <span class="n">database</span> <span class="n">server</span> <span class="n">using</span><span class="p">:</span>
-
-    <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pg_ctl</span> <span class="o">-</span><span class="n">D</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span> <span class="o">-</span><span class="n">l</span> <span class="n">logfile</span> <span class="n">start</span>
-
-<span class="n">Ver</span> <span class="n">Cluster</span> <span class="n">Port</span> <span class="n">Status</span> <span class="n">Owner</span>    <span class="n">Data</span> <span class="n">directory</span>              <span class="n">Log</span> <span class="n">file</span>
-<span class="mi">11</span>  <span class="n">main</span>    <span class="mi">5432</span> <span class="n">down</span>   <span class="n">postgres</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">postgresql</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="n">main</span><span class="o">.</span><span class="n">log</span>
-</pre></div>
-</div>
-<p>上のメッセージにあるとおり、データベースのディレクトリは/var/lib/postgresql/11/mainでログファイルは/var/log/postgresql/postgresql-11-main.logです。</p>
-<p class="last">また設定ファイルのディレクトリは/etc/postgresql/11/mainです。</p>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>以下のコマンドで管理者であるpostgresユーザでPostgreSQLに接続できます。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">iu</span> <span class="n">postgres</span> <span class="n">psql</span>
-</pre></div>
-</div>
-<p>psqlのプロンプト <code class="code docutils literal notranslate"><span class="pre">postgres=#</span></code> で <code class="code docutils literal notranslate"><span class="pre">\q</span></code> を入力するとpsqlを抜けてシェルに戻ります。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">postgres</span><span class="o">=</span><span class="c1"># \q</span>
-</pre></div>
-</div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>/etc/postgresql/11/main/pg_hba.conf を確認してみると以下の行があるので、接続用のユーザを作成して接続先に127.0.0.1を指定すればパスワードありで接続可能です。</p>
-<div class="code text last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># IPv4 local connections:</span>
-<span class="n">host</span>    <span class="nb">all</span>             <span class="nb">all</span>             <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.1</span><span class="o">/</span><span class="mi">32</span>            <span class="n">md5</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="timescaledb">
-<h2>TimescaleDBのインストール<a class="headerlink" href="#timescaledb" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://docs.timescale.com/v1.1/getting-started/installation/ubuntu/installation-apt-ubuntu">TimescaleDB Docs | Installing</a> の手順にしたがってインストールします。</p>
-<p><a class="reference external" href="https://launchpad.net/~timescale/+archive/ubuntu/timescaledb-ppa">TimescaleDBのPPAのレポジトリ</a> を追加します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="o">-</span><span class="n">y</span> <span class="n">ppa</span><span class="p">:</span><span class="n">timescale</span><span class="o">/</span><span class="n">timescaledb</span><span class="o">-</span><span class="n">ppa</span>
-</pre></div>
-</div>
-<p>レポジトリを追加したのでパッケージ情報をアップデートします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
-</pre></div>
-</div>
-<p>PostgreSQL 11用のTimescaleDBパッケージをインストールします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">timescaledb</span><span class="o">-</span><span class="n">postgresql</span><span class="o">-</span><span class="mi">11</span>
-</pre></div>
-</div>
-<p>インストール時に以下のようなメッセージが表示されます。この後PipelineDBのインストール後にまとめて設定します。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TimescaleDB</span> <span class="n">has</span> <span class="n">been</span> <span class="n">installed</span><span class="o">.</span> <span class="n">You</span> <span class="n">need</span> <span class="n">to</span> <span class="n">update</span> <span class="n">your</span> <span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span> <span class="n">file</span>
-<span class="n">to</span> <span class="n">load</span> <span class="n">the</span> <span class="n">library</span> <span class="n">by</span> <span class="n">adding</span> <span class="n">TimescaleDB</span> <span class="n">to</span> <span class="n">your</span> <span class="n">shared_preload_libraries</span><span class="o">.</span>
-<span class="n">Find</span> <span class="n">the</span> <span class="n">line</span> <span class="n">below</span> <span class="ow">and</span> <span class="n">change</span> <span class="n">the</span> <span class="n">value</span> <span class="k">as</span> <span class="n">shown</span> <span class="p">(</span><span class="n">uncomment</span> <span class="k">if</span> <span class="n">needed</span><span class="p">):</span>
-
-<span class="n">shared_preload_libraries</span> <span class="o">=</span> <span class="s1">&#39;timescaledb&#39;</span>
-</pre></div>
-</div>
-<p><a class="reference external" href="https://docs.timescale.com/v1.1/using-timescaledb/telemetry">Telemetry and Version Checking</a> で説明されているようにTimescaleDBは製品の改善のために利用の統計情報をデフォルトで送信するようになっています。</p>
-<p>これを無効にするには以下のコマンドを実行します。PostgreSQLのサービスの再起動も必要だと思いますが、これは以下で行います。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="n">timescaledb</span><span class="o">.</span><span class="n">telemetry_level</span><span class="o">=</span><span class="n">off</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">-</span><span class="n">a</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>統計情報を送信していることは、以下の手順で <code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">-iu</span> <span class="pre">postgres</span> <span class="pre">psql</span> <span class="pre">-c</span> <span class="pre">&quot;CREATE</span> <span class="pre">EXTENSION</span> <span class="pre">IF</span> <span class="pre">NOT</span> <span class="pre">EXISTS</span> <span class="pre">timescaledb</span> <span class="pre">CASCADE;&quot;</span> <span class="pre">zabbix</span></code> と実行したときに以下のようにメッセージが表示されて説明がありました。</p>
-<div class="code text last highlight-default notranslate"><div class="highlight"><pre><span></span>WARNING:
-WELCOME TO
- _____ _                               _     ____________
-|_   _(_)                             | |    |  _  \ ___ \
-  | |  _ _ __ ___   ___  ___  ___ __ _| | ___| | | | |_/ /
-  | | | |  _ ` _ \ / _ \/ __|/ __/ _` | |/ _ \ | | | ___ \
-  | | | | | | | | |  __/\__ \ (_| (_| | |  __/ |/ /| |_/ /
-  |_| |_|_| |_| |_|\___||___/\___\__,_|_|\___|___/ \____/
-               Running version 1.1.1
-For more information on TimescaleDB, please visit the following links:
-
- 1. Getting started: https://docs.timescale.com/getting-started
- 2. API reference documentation: https://docs.timescale.com/api
- 3. How TimescaleDB is designed: https://docs.timescale.com/introduction/architecture
-
-Note: TimescaleDB collects anonymous reports to better understand and assist our users.
-For more information and how to disable, please see our docs https://docs.timescaledb.com/using-timescaledb/telemetry.
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="pipelinedb">
-<h2>PipelineDBのインストール<a class="headerlink" href="#pipelinedb" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="http://docs.pipelinedb.com/installation.html">PipelineDB Installation — PipelineDB 1.0.0 documentation</a> の手順にしたがってインストールします。</p>
-<p>インストールスクリプトをダウンロードします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">curl</span> <span class="o">-</span><span class="n">LO</span> <span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">download</span><span class="o">.</span><span class="n">pipelinedb</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">apt</span><span class="o">.</span><span class="n">sh</span>
-</pre></div>
-</div>
-<p>実行前に内容を確認します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vim</span> <span class="n">apt</span><span class="o">.</span><span class="n">sh</span>
-</pre></div>
-</div>
-<p>インストールスクリプトを実行します。実際にどういうコマンドが実行されたかを確認したいので <code class="code docutils literal notranslate"><span class="pre">bash</span></code> の <code class="code docutils literal notranslate"><span class="pre">-x</span></code> オプションを指定して実行します。 <code class="code docutils literal notranslate"><span class="pre">apt-transport-https</span></code> パッケージのインストール、レポジトリの追加、GPGキーの追加、 <code class="code docutils literal notranslate"><span class="pre">apt-get</span> <span class="pre">update</span></code> が実行されます。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">bash</span> <span class="o">-</span><span class="n">x</span> <span class="n">apt</span><span class="o">.</span><span class="n">sh</span>
-</pre></div>
-</div>
-<p>PostgreSQL 11用のPipelineDBパッケージをインストールします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">pipelinedb</span><span class="o">-</span><span class="n">postgresql</span><span class="o">-</span><span class="mi">11</span>
-</pre></div>
-</div>
-<p>最後に以下のようなメッセージが表示されます。次項でTimescaleDBの設定と合わせて設定します。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Next</span><span class="p">,</span> <span class="n">edit</span> <span class="o">&lt;</span><span class="n">data</span> <span class="n">directory</span><span class="o">&gt;/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">:</span>
-
-  <span class="n">shared_preload_libraries</span> <span class="o">=</span> <span class="s1">&#39;pipelinedb&#39;</span>
-  <span class="n">max_worker_processes</span> <span class="o">=</span> <span class="mi">128</span>
-
-<span class="n">Once</span> <span class="n">your</span> <span class="n">database</span> <span class="ow">is</span> <span class="n">running</span><span class="p">,</span> <span class="n">create</span> <span class="n">the</span> <span class="n">pipelinedb</span> <span class="n">extension</span><span class="p">:</span>
-
-  <span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s1">&#39;CREATE EXTENSION pipelinedb&#39;</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="timescaledbpipelinedb">
-<h2>TimescaleDBとPipelineDBの設定<a class="headerlink" href="#timescaledbpipelinedb" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>上記でインストール時にメッセージで出力された設定を行います。</p>
-<p>まずPostgreSQLの設定ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/postgresql/11/main/postgresql.conf</span></code> 内で変更前の <code class="code docutils literal notranslate"><span class="pre">shared_preload_libraries</span></code> の設定を確認します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="n">shared_preload_libraries</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>実行してみると以下のようになりました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># grep shared_preload_libraries /etc/postgresql/11/main/postgresql.conf</span>
-<span class="c1">#shared_preload_libraries = &#39;&#39;  # (change requires restart)</span>
-</pre></div>
-</div>
-<p>次にPostgreSQLの設定ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/postgresql/11/main/postgresql.conf</span></code> 内で変更前の <code class="code docutils literal notranslate"><span class="pre">max_worker_processes</span></code> の設定を確認します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="n">max_worker_processes</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>実行してみると以下のようになりました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># grep max_worker_processes /etc/postgresql/11/main/postgresql.conf</span>
-<span class="c1">#max_worker_processes = 8               # (change requires restart)</span>
-<span class="c1">#max_parallel_workers = 8               # maximum number of max_worker_processes that</span>
-<span class="c1">#max_logical_replication_workers = 4    # taken from max_worker_processes</span>
-</pre></div>
-</div>
-<p><a class="reference external" href="https://www.postgresql.org/docs/11/runtime-config-client.html#GUC-SHARED-PRELOAD-LIBRARIES">shared_preload_libraries</a> によると複数のライブラリを指定するにはカンマ区切りにすれば良いそうです。ということで、以下のように <code class="code docutils literal notranslate"><span class="pre">shared_preload_libraries</span></code> と <code class="code docutils literal notranslate"><span class="pre">max_worker_processes</span></code> を設定します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">sed</span> <span class="o">-</span><span class="n">i</span> <span class="o">-</span><span class="n">e</span> <span class="s2">&quot;s/^#shared_preload_libraries = &#39;&#39;/shared_preload_libraries = &#39;timescaledb,pipelinedb&#39;/;s/^#max_worker_processes = 8/max_worker_processes = 128/&quot;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>以下のコマンドで変更結果を確認します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grep</span> <span class="o">-</span><span class="n">E</span> <span class="s1">&#39;(shared_preload_libraries|max_worker_processes)&#39;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="mi">11</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">postgresql</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>結果は以下のようになり期待通り変更できていました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># grep -E &#39;(shared_preload_libraries|max_worker_processes)&#39; /etc/postgresql/11/main/postgresql.conf</span>
-<span class="n">max_worker_processes</span> <span class="o">=</span> <span class="mi">128</span>              <span class="c1"># (change requires restart)</span>
-<span class="c1">#max_parallel_workers = 8               # maximum number of max_worker_processes that</span>
-<span class="c1">#max_logical_replication_workers = 4    # taken from max_worker_processes</span>
-<span class="n">shared_preload_libraries</span> <span class="o">=</span> <span class="s1">&#39;timescaledb,pipelinedb&#39;</span>     <span class="c1"># (change requires restart)</span>
-</pre></div>
-</div>
-<p>設定変更を反映させるためPostgreSQLのサービスを再起動します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">restart</span> <span class="n">postgresql</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="zabbix">
-<h2>Zabbixのインストール<a class="headerlink" href="#zabbix" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://www.zabbix.com/documentation/4.0/manual/installation/install_from_packages/debian_ubuntu">2 Debian/Ubuntu/Raspbian [Zabbix Documentation 4.0]</a> の手順にしたがってインストールします。</p>
-<p>Zabbixのaptレポジトリを追加するためのパッケージファイルをダウンロードします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">curl</span> <span class="o">-</span><span class="n">LO</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">repo</span><span class="o">.</span><span class="n">zabbix</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="mf">4.0</span><span class="o">/</span><span class="n">ubuntu</span><span class="o">/</span><span class="n">pool</span><span class="o">/</span><span class="n">main</span><span class="o">/</span><span class="n">z</span><span class="o">/</span><span class="n">zabbix</span><span class="o">-</span><span class="n">release</span><span class="o">/</span><span class="n">zabbix</span><span class="o">-</span><span class="n">release_4</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mi">2</span><span class="o">+</span><span class="n">bionic_all</span><span class="o">.</span><span class="n">deb</span>
-</pre></div>
-</div>
-<p>Zabbixのaptレポジトリを追加するためのパッケージファイルをインストールします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">dpkg</span> <span class="o">-</span><span class="n">i</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">release_4</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="mi">2</span><span class="o">+</span><span class="n">bionic_all</span><span class="o">.</span><span class="n">deb</span>
-</pre></div>
-</div>
-<p>レポジトリを追加したのでパッケージ情報をアップデートします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
-</pre></div>
-</div>
-<p>PostgreSQL用のZabbixサーバ、Zabbixのフロントエンド、PHPのPostgreSQLモジュールをインストールします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">pgsql</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">frontend</span><span class="o">-</span><span class="n">php</span> <span class="n">php</span><span class="o">-</span><span class="n">pgsql</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>インストールの途中で以下のようなメッセージが表示されていました。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span>adduser: Warning: The home directory `/var/lib/snmp&#39; does not belong to the user you are currently creating.
-Created symlink /etc/systemd/system/multi-user.target.wants/snmpd.service → /lib/systemd/system/snmpd.service.
-</pre></div>
-</div>
-<p>/etc/passwd を確認するとzabbixユーザの他にDebian-snmpというユーザが作られたようです。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># grep -E &#39;(/var/lib/snmp|zabbix)&#39; /etc/passwd</span>
-<span class="n">Debian</span><span class="o">-</span><span class="n">snmp</span><span class="p">:</span><span class="n">x</span><span class="p">:</span><span class="mi">112</span><span class="p">:</span><span class="mi">117</span><span class="p">::</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">snmp</span><span class="p">:</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">false</span>
-<span class="n">zabbix</span><span class="p">:</span><span class="n">x</span><span class="p">:</span><span class="mi">113</span><span class="p">:</span><span class="mi">118</span><span class="p">::</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="p">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">nologin</span>
-</pre></div>
-</div>
-<p>/var/lib/snmp の所有者を確認するとDebian-snmpユーザだったので上記のメッセージが出たあとに所有者が変更されたようです。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls -ld /var/lib/snmp</span>
-<span class="n">drwxr</span><span class="o">-</span><span class="n">xr</span><span class="o">-</span><span class="n">x</span> <span class="mi">3</span> <span class="n">Debian</span><span class="o">-</span><span class="n">snmp</span> <span class="n">Debian</span><span class="o">-</span><span class="n">snmp</span> <span class="mi">4096</span> <span class="n">Dec</span> <span class="mi">31</span> <span class="mi">01</span><span class="p">:</span><span class="mi">04</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">snmp</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="id2">
-<h2>Zabbixのデータベース作成<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://www.zabbix.com/jp/download?zabbix=4.0&amp;os_distribution=ubuntu&amp;os_version=bionic&amp;db=PostgreSQL">Zabbix 4.0 LTS, Ubuntu 18.04, PostgreSQLのダウンロードページ</a> を参考にして以下の手順で作成します。</p>
-<p>PostgreSQLにzabbixというユーザを作成します。パスワードのプロンプトが出ますのでzabbixユーザ用に設定したいパスワードを入力します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">iu</span> <span class="n">postgres</span> <span class="n">createuser</span> <span class="o">-</span><span class="n">P</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p><code class="code docutils literal notranslate"><span class="pre">-P</span></code> オプションを忘れてパスワード無しでユーザを作成してしまった場合、以下のように実行すればパスワードを設定できます。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">iu</span> <span class="n">postgres</span> <span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;ALTER USER zabbix WITH ENCRYPTED PASSWORD &#39;設定したいパスワード&#39;;&quot;</span>
-</pre></div>
-</div>
-</div>
-<p>PostgreSQLにzabbixというデータベースをzabbixユーザを所有者にして作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">iu</span> <span class="n">postgres</span> <span class="n">createdb</span> <span class="o">-</span><span class="n">O</span> <span class="n">zabbix</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<p>zabbixデータベース内にTimescaleDBのエクステンションを作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">iu</span> <span class="n">postgres</span> <span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;&quot;</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<p>zabbixデータベース内にPipelineDBのエクステンションを作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="o">-</span><span class="n">iu</span> <span class="n">postgres</span> <span class="n">psql</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;CREATE EXTENSION IF NOT EXISTS pipelinedb&quot;</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<p>Zabbix用のデータベーススキーマを作成するSQLをzabbixユーザで実行します。パスワードプロンプトが出ますので上記で設定したパスワードを入力してください。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">zcat</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">doc</span><span class="o">/</span><span class="n">zabbix</span><span class="o">-</span><span class="n">server</span><span class="o">-</span><span class="n">pgsql</span><span class="o">/</span><span class="n">create</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">gz</span> <span class="o">|</span> <span class="n">psql</span> <span class="o">-</span><span class="n">h</span> <span class="n">localhost</span> <span class="o">-</span><span class="n">U</span> <span class="n">zabbix</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<p>上記で作成したスキーマに含まれるhistoryテーブルに対してTimescaleDBのhypertableを作成します。パスワードプロンプトが出ますので上記で設定したパスワードを入力してください。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">psql</span> <span class="o">-</span><span class="n">h</span> <span class="n">localhost</span> <span class="o">-</span><span class="n">U</span> <span class="n">zabbix</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;SELECT create_hypertable(&#39;history&#39;, &#39;clock&#39;, chunk_time_interval =&gt; 2592000)&quot;</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>historyテーブルの定義は以下のようになっており、clockカラムの型はtimestamp with time zoneやtimestampではなくintegerになっています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># sudo -iu postgres psql -c &#39;\d history&#39; zabbix</span>
-                 <span class="n">Table</span> <span class="s2">&quot;public.history&quot;</span>
- <span class="n">Column</span> <span class="o">|</span>     <span class="n">Type</span>      <span class="o">|</span> <span class="n">Collation</span> <span class="o">|</span> <span class="n">Nullable</span> <span class="o">|</span> <span class="n">Default</span>
-<span class="o">--------+---------------+-----------+----------+---------</span>
- <span class="n">itemid</span> <span class="o">|</span> <span class="n">bigint</span>        <span class="o">|</span>           <span class="o">|</span> <span class="ow">not</span> <span class="n">null</span> <span class="o">|</span>
- <span class="n">clock</span>  <span class="o">|</span> <span class="n">integer</span>       <span class="o">|</span>           <span class="o">|</span> <span class="ow">not</span> <span class="n">null</span> <span class="o">|</span> <span class="mi">0</span>
- <span class="n">value</span>  <span class="o">|</span> <span class="n">numeric</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span> <span class="o">|</span>           <span class="o">|</span> <span class="ow">not</span> <span class="n">null</span> <span class="o">|</span> <span class="mf">0.0000</span>
- <span class="n">ns</span>     <span class="o">|</span> <span class="n">integer</span>       <span class="o">|</span>           <span class="o">|</span> <span class="ow">not</span> <span class="n">null</span> <span class="o">|</span> <span class="mi">0</span>
-<span class="n">Indexes</span><span class="p">:</span>
-    <span class="s2">&quot;history_1&quot;</span> <span class="n">btree</span> <span class="p">(</span><span class="n">itemid</span><span class="p">,</span> <span class="n">clock</span><span class="p">)</span>
-    <span class="s2">&quot;history_clock_idx&quot;</span> <span class="n">btree</span> <span class="p">(</span><span class="n">clock</span> <span class="n">DESC</span><span class="p">)</span>
-<span class="n">Triggers</span><span class="p">:</span>
-    <span class="n">ts_insert_blocker</span> <span class="n">BEFORE</span> <span class="n">INSERT</span> <span class="n">ON</span> <span class="n">history</span> <span class="n">FOR</span> <span class="n">EACH</span> <span class="n">ROW</span> <span class="n">EXECUTE</span> <span class="n">PROCEDURE</span> <span class="n">_timescaledb_internal</span><span class="o">.</span><span class="n">insert_blocker</span><span class="p">()</span>
-<span class="n">Number</span> <span class="n">of</span> <span class="n">child</span> <span class="n">tables</span><span class="p">:</span> <span class="mi">1</span> <span class="p">(</span><span class="n">Use</span> \<span class="n">d</span><span class="o">+</span> <span class="n">to</span> <span class="nb">list</span> <span class="n">them</span><span class="o">.</span><span class="p">)</span>
-</pre></div>
-</div>
-<p class="last">このため <a class="reference external" href="https://github.com/timescale/timescaledb/issues/150">Time column as integer type fails with default config (&quot;PGRES_FATAL_ERROR:ERROR value 2592000000000 is out of range&quot;) · Issue #150 · timescale/timescaledb</a> にあるように上記のcreate_hypertableには <code class="code docutils literal notranslate"><span class="pre">chunk_time_interval</span> <span class="pre">=&gt;</span> <span class="pre">2592000</span></code> を指定する必要があります。</p>
-</div>
-</div>
-<div class="section" id="id3">
-<h2>Zabbixサーバの設定<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://www.zabbix.com/jp/download?zabbix=4.0&amp;os_distribution=ubuntu&amp;os_version=bionic&amp;db=PostgreSQL">Zabbix 4.0 LTS, Ubuntu 18.04, PostgreSQLのダウンロードページ</a> を参考にして以下の手順で作成します。</p>
-<p>以下のコマンドを実行し <code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/zabbix_server.conf</span></code> を編集して <code class="code docutils literal notranslate"><span class="pre">DBPassword</span></code> の値を設定します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">vim</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">zabbix_server</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p><code class="code docutils literal notranslate"><span class="pre">DBPassword</span></code> の設定内容は以下のようにします。コメントの部分は元からあるので <code class="code docutils literal notranslate"><span class="pre">DBPassword=上記で設定したパスワード</span></code> の行を追加します。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">### Option: DBPassword</span>
-<span class="c1">#       Database password.</span>
-<span class="c1">#       Comment this line if no password is used.</span>
-<span class="c1">#</span>
-<span class="c1"># Mandatory: no</span>
-<span class="c1"># Default:</span>
-<span class="c1"># DBPassword=</span>
-
-<span class="n">DBPassword</span><span class="o">=</span><span class="n">上記で設定したパスワード</span>
-</pre></div>
-</div>
-<p>以下のコマンドで現在のZabbixサーバのサービスの起動状態を確認します。停止状態になっているはずです。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">status</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">server</span>
-</pre></div>
-</div>
-<p>以下のコマンドで現在のZabbixサーバのサービスを起動します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">status</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">server</span>
-</pre></div>
-</div>
-<p>再び以下のコマンドで現在のZabbixサーバのサービスの起動状態を確認します。今度は起動状態になっているはずです。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">status</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">server</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="id4">
-<h2>Zabbixフロントエンドの設定<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p><a class="reference external" href="https://www.zabbix.com/jp/download?zabbix=4.0&amp;os_distribution=ubuntu&amp;os_version=bionic&amp;db=PostgreSQL">Zabbix 4.0 LTS, Ubuntu 18.04, PostgreSQLのダウンロードページ</a> からリンクされている <a class="reference external" href="https://www.zabbix.com/documentation/4.0/manual/installation/install#installing_frontend">3 Installation from sources [Zabbix Documentation 4.0]</a>　を参考に以下のように設定します。</p>
-<p><code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/apache.conf</span></code> を編集して <code class="code docutils literal notranslate"><span class="pre">&lt;IfModule</span> <span class="pre">mod_php7.c&gt;</span></code> 内の date.timezone の値を設定します。ここでは <code class="code docutils literal notranslate"><span class="pre">Asia/Tokyo</span></code> にしています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">vim</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">apache</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>変更前は以下のようになっていました。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">IfModule</span> <span class="n">mod_php7</span><span class="o">.</span><span class="n">c</span><span class="o">&gt;</span>
-    <span class="n">php_value</span> <span class="n">max_execution_time</span> <span class="mi">300</span>
-    <span class="n">php_value</span> <span class="n">memory_limit</span> <span class="mi">128</span><span class="n">M</span>
-    <span class="n">php_value</span> <span class="n">post_max_size</span> <span class="mi">16</span><span class="n">M</span>
-    <span class="n">php_value</span> <span class="n">upload_max_filesize</span> <span class="mi">2</span><span class="n">M</span>
-    <span class="n">php_value</span> <span class="n">max_input_time</span> <span class="mi">300</span>
-    <span class="n">php_value</span> <span class="n">max_input_vars</span> <span class="mi">10000</span>
-    <span class="n">php_value</span> <span class="n">always_populate_raw_post_data</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="c1"># php_value date.timezone Europe/Riga</span>
-<span class="o">&lt;/</span><span class="n">IfModule</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<p><code class="code docutils literal notranslate"><span class="pre">date.timezone</span></code> の行を以下のように書き換えました。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">IfModule</span> <span class="n">mod_php7</span><span class="o">.</span><span class="n">c</span><span class="o">&gt;</span>
-    <span class="n">php_value</span> <span class="n">max_execution_time</span> <span class="mi">300</span>
-    <span class="n">php_value</span> <span class="n">memory_limit</span> <span class="mi">128</span><span class="n">M</span>
-    <span class="n">php_value</span> <span class="n">post_max_size</span> <span class="mi">16</span><span class="n">M</span>
-    <span class="n">php_value</span> <span class="n">upload_max_filesize</span> <span class="mi">2</span><span class="n">M</span>
-    <span class="n">php_value</span> <span class="n">max_input_time</span> <span class="mi">300</span>
-    <span class="n">php_value</span> <span class="n">max_input_vars</span> <span class="mi">10000</span>
-    <span class="n">php_value</span> <span class="n">always_populate_raw_post_data</span> <span class="o">-</span><span class="mi">1</span>
-    <span class="n">php_value</span> <span class="n">date</span><span class="o">.</span><span class="n">timezone</span> <span class="n">Asia</span><span class="o">/</span><span class="n">Tokyo</span>
-<span class="o">&lt;/</span><span class="n">IfModule</span><span class="o">&gt;</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p><code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/apache.conf</span></code> は以下のようにapache2から参照されるようになっていました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls -l /etc/apache2/conf-available/zabbix.conf /etc/apache2/conf-enabled/zabbix.conf</span>
-<span class="n">lrwxrwxrwx</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">23</span> <span class="n">Dec</span> <span class="mi">31</span> <span class="mi">22</span><span class="p">:</span><span class="mi">41</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apache2</span><span class="o">/</span><span class="n">conf</span><span class="o">-</span><span class="n">available</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">apache</span><span class="o">.</span><span class="n">conf</span>
-<span class="n">lrwxrwxrwx</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">29</span> <span class="n">Dec</span> <span class="mi">31</span> <span class="mi">22</span><span class="p">:</span><span class="mi">41</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apache2</span><span class="o">/</span><span class="n">conf</span><span class="o">-</span><span class="n">enabled</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">../</span><span class="n">conf</span><span class="o">-</span><span class="n">available</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>またapache2のサイト設定ファイルは以下のようになっていました。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls -l /etc/apache2/sites-available/</span>
-<span class="n">total</span> <span class="mi">12</span>
-<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">1332</span> <span class="n">Oct</span> <span class="mi">10</span> <span class="mi">18</span><span class="p">:</span><span class="mi">59</span> <span class="mi">000</span><span class="o">-</span><span class="n">default</span><span class="o">.</span><span class="n">conf</span>
-<span class="o">-</span><span class="n">rw</span><span class="o">-</span><span class="n">r</span><span class="o">--</span><span class="n">r</span><span class="o">--</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">6338</span> <span class="n">Oct</span> <span class="mi">10</span> <span class="mi">18</span><span class="p">:</span><span class="mi">59</span> <span class="n">default</span><span class="o">-</span><span class="n">ssl</span><span class="o">.</span><span class="n">conf</span>
-<span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls -l /etc/apache2/sites-enabled/</span>
-<span class="n">total</span> <span class="mi">0</span>
-<span class="n">lrwxrwxrwx</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">35</span> <span class="n">Dec</span> <span class="mi">31</span> <span class="mi">22</span><span class="p">:</span><span class="mi">41</span> <span class="mi">000</span><span class="o">-</span><span class="n">default</span><span class="o">.</span><span class="n">conf</span> <span class="o">-&gt;</span> <span class="o">../</span><span class="n">sites</span><span class="o">-</span><span class="n">available</span><span class="o">/</span><span class="mi">000</span><span class="o">-</span><span class="n">default</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-</div>
-<p><a class="reference external" href="https://www.zabbix.com/documentation/4.0/manual/installation/install#installing_zabbix_web_interface">3 Installation from sources [Zabbix Documentation 4.0]</a> を参考に、以下のようにしてZabbixフロントエンドのPHPファイルをapache2のドキュメントルート配下にコピーしました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">cp</span> <span class="o">-</span><span class="n">pr</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">zabbix</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>以下のように <code class="code docutils literal notranslate"><span class="pre">/var/www/html/zabbix/index.php</span></code> というファイルが出来ていればOKです。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls /var/www/html/zabbix/index.php</span>
-<span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">index</span><span class="o">.</span><span class="n">php</span>
-</pre></div>
-</div>
-</div>
-<p><code class="code docutils literal notranslate"><span class="pre">/</span></code> を <code class="code docutils literal notranslate"><span class="pre">/zabbix</span></code> にリダイレクトするように設定します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">vim</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">apache2</span><span class="o">/</span><span class="n">mods</span><span class="o">-</span><span class="n">enabled</span><span class="o">/</span><span class="n">alias</span><span class="o">.</span><span class="n">conf</span>
-</pre></div>
-</div>
-<p>変更前の設定内容は以下のとおりでした。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">IfModule</span> <span class="n">alias_module</span><span class="o">&gt;</span>
-        <span class="c1"># Aliases: Add here as many aliases as you need (with no limit). The format is</span>
-        <span class="c1"># Alias fakename realname</span>
-        <span class="c1">#</span>
-        <span class="c1"># Note that if you include a trailing / on fakename then the server will</span>
-        <span class="c1"># require it to be present in the URL.  So &quot;/icons&quot; isn&#39;t aliased in this</span>
-        <span class="c1"># example, only &quot;/icons/&quot;.  If the fakename is slash-terminated, then the</span>
-        <span class="c1"># realname must also be slash terminated, and if the fakename omits the</span>
-        <span class="c1"># trailing slash, the realname must also omit it.</span>
-        <span class="c1">#</span>
-        <span class="c1"># We include the /icons/ alias for FancyIndexed directory listings.  If</span>
-        <span class="c1"># you do not use FancyIndexing, you may comment this out.</span>
-
-        <span class="n">Alias</span> <span class="o">/</span><span class="n">icons</span><span class="o">/</span> <span class="s2">&quot;/usr/share/apache2/icons/&quot;</span>
-
-        <span class="o">&lt;</span><span class="n">Directory</span> <span class="s2">&quot;/usr/share/apache2/icons&quot;</span><span class="o">&gt;</span>
-                <span class="n">Options</span> <span class="n">FollowSymlinks</span>
-                <span class="n">AllowOverride</span> <span class="kc">None</span>
-                <span class="n">Require</span> <span class="nb">all</span> <span class="n">granted</span>
-        <span class="o">&lt;/</span><span class="n">Directory</span><span class="o">&gt;</span>
-
-<span class="o">&lt;/</span><span class="n">IfModule</span><span class="o">&gt;</span>
-
-<span class="c1"># vim: syntax=apache ts=4 sw=4 sts=4 sr noet</span>
-</pre></div>
-</div>
-<p>以下のように <code class="code docutils literal notranslate"><span class="pre">RedirectMatch</span> <span class="pre">permanent</span> <span class="pre">&quot;^/$&quot;</span> <span class="pre">&quot;/zabbix&quot;</span></code> の行を追加します。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">IfModule</span> <span class="n">alias_module</span><span class="o">&gt;</span>
-        <span class="c1"># Aliases: Add here as many aliases as you need (with no limit). The format is</span>
-        <span class="c1"># Alias fakename realname</span>
-        <span class="c1">#</span>
-        <span class="c1"># Note that if you include a trailing / on fakename then the server will</span>
-        <span class="c1"># require it to be present in the URL.  So &quot;/icons&quot; isn&#39;t aliased in this</span>
-        <span class="c1"># example, only &quot;/icons/&quot;.  If the fakename is slash-terminated, then the</span>
-        <span class="c1"># realname must also be slash terminated, and if the fakename omits the</span>
-        <span class="c1"># trailing slash, the realname must also omit it.</span>
-        <span class="c1">#</span>
-        <span class="c1"># We include the /icons/ alias for FancyIndexed directory listings.  If</span>
-        <span class="c1"># you do not use FancyIndexing, you may comment this out.</span>
-
-        <span class="n">Alias</span> <span class="o">/</span><span class="n">icons</span><span class="o">/</span> <span class="s2">&quot;/usr/share/apache2/icons/&quot;</span>
-
-        <span class="o">&lt;</span><span class="n">Directory</span> <span class="s2">&quot;/usr/share/apache2/icons&quot;</span><span class="o">&gt;</span>
-                <span class="n">Options</span> <span class="n">FollowSymlinks</span>
-                <span class="n">AllowOverride</span> <span class="kc">None</span>
-                <span class="n">Require</span> <span class="nb">all</span> <span class="n">granted</span>
-        <span class="o">&lt;/</span><span class="n">Directory</span><span class="o">&gt;</span>
-
-        <span class="n">RedirectMatch</span> <span class="n">permanent</span> <span class="s2">&quot;^/$&quot;</span> <span class="s2">&quot;/zabbix&quot;</span>
-
-<span class="o">&lt;/</span><span class="n">IfModule</span><span class="o">&gt;</span>
-
-<span class="c1"># vim: syntax=apache ts=4 sw=4 sts=4 sr noet</span>
-</pre></div>
-</div>
-<p>apache2のサービスを再起動します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">systemctl</span> <span class="n">restart</span> <span class="n">apache2</span>
-</pre></div>
-</div>
-<p>ウェブブラウザで <code class="code docutils literal notranslate"><span class="pre">http://コンテナのIPアドレス/zabbix</span></code> を開くとZabbixフロントエンドのセットアップ画面になります。</p>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>LXDコンテナのホストと別のマシンからアクセスする場合は、LXDホストにnginxを入れてリバースプロキシするか <a class="reference external" href="https://gihyo.jp/admin/serial/01/ubuntu-recipe/0535?page=4">第535回　LXD 3.0のネットワーク設定：Ubuntu Weekly Recipe｜gihyo.jp … 技術評論社</a> の「特定のアドレス・ポートを公開する」の手順でコンテナのポートを公開してください。</p>
-<p>例えばzabbixというコンテナのIPアドレスが10.70.121.121で、コンテナのポート80をLXDをホストの8080で公開するには以下のようにします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lxc</span> <span class="n">config</span> <span class="n">device</span> <span class="n">add</span> <span class="n">zabbix</span> <span class="n">http</span> <span class="n">proxy</span> <span class="n">listen</span><span class="o">=</span><span class="n">tcp</span><span class="p">:</span><span class="mf">0.0</span><span class="o">.</span><span class="mf">0.0</span><span class="p">:</span><span class="mi">8080</span> <span class="n">connect</span><span class="o">=</span><span class="n">tcp</span><span class="p">:</span><span class="mf">10.70</span><span class="o">.</span><span class="mf">121.121</span><span class="p">:</span><span class="mi">80</span> <span class="n">bind</span><span class="o">=</span><span class="n">host</span>
-</pre></div>
-</div>
-<p>作成したプロキシの情報確認はLXDホストで以下のコマンドを実行します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lxc</span> <span class="n">config</span> <span class="n">device</span> <span class="n">show</span> <span class="n">zabbix</span>
-</pre></div>
-</div>
-<p>実行例は以下のようになります。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span>LXDホスト$ lxc config device show zabbix
-http:
-  bind: host
-  connect: tcp:10.70.121.121:80
-  listen: tcp:0.0.0.0:80
-  type: proxy
-</pre></div>
-</div>
-<p>上記で作成したプロキシを削除するには以下のようにします。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lxc</span> <span class="n">config</span> <span class="n">device</span> <span class="n">rm</span> <span class="n">zabbix</span> <span class="n">http</span>
-</pre></div>
-</div>
-</div>
-<p>セットアップ画面では以下のように操作します。</p>
-<ol class="arabic simple">
-<li>タイトルがCheck of pre-requisitesのページでは一番右の列が全てOKになっていることを確認し、[Next step]ボタンを押します。</li>
-<li>タイトルがConfigure DB connectionのページではDatabase TypeがPostgreSQLになっていることを確認し、Passwordの欄に上記で設定したパスワードを入力して[Next step]ボタンを押します。</li>
-<li>タイトルがZabbix server detailsのページはそのまま[Next step]ボタンを押します。</li>
-<li>Pre-installation summaryのページで設定内容を確認し、問題なければ[Next step]ボタンを押します。</li>
-<li><code class="code docutils literal notranslate"><span class="pre">Congratulations!</span> <span class="pre">You</span> <span class="pre">have</span> <span class="pre">successfully</span> <span class="pre">installed</span> <span class="pre">Zabbix</span> <span class="pre">frontend.</span></code> と表示されれば成功です。[Finish]ボタンを押すとZabbixのログイン画面が表示されます。</li>
-</ol>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>上記の <code class="code docutils literal notranslate"><span class="pre">Congratulations!</span> <span class="pre">You</span> <span class="pre">have</span> <span class="pre">successfully</span> <span class="pre">installed</span> <span class="pre">Zabbix</span> <span class="pre">frontend.</span></code> のメッセージの下に <code class="code docutils literal notranslate"><span class="pre">Configuration</span> <span class="pre">file</span> <span class="pre">&quot;/usr/share/zabbix/conf/zabbix.conf.php&quot;</span> <span class="pre">created.</span></code> と表示されていました。</p>
-<p>確認してみると <code class="code docutils literal notranslate"><span class="pre">/usr/share/zabbix/conf/zabbix.conf.php</span></code> と <code class="code docutils literal notranslate"><span class="pre">/var/www/html/zabbix/conf/zabbix.conf.php</span></code> はともに <code class="code docutils literal notranslate"><span class="pre">/etc/zabbix/web/zabbix.conf.php</span></code> へのシンボリックリンクになっていました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls -l /usr/share/zabbix/conf/zabbix.conf.php</span>
-<span class="n">lrwxrwxrwx</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">31</span> <span class="n">Dec</span> <span class="mi">20</span> <span class="mi">09</span><span class="p">:</span><span class="mi">50</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">php</span> <span class="o">-&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">php</span>
-<span class="n">root</span><span class="nd">@zabbix</span><span class="p">:</span><span class="o">~</span><span class="c1"># ls -l /var/www/html/zabbix/conf/zabbix.conf.php</span>
-<span class="n">lrwxrwxrwx</span> <span class="mi">1</span> <span class="n">root</span> <span class="n">root</span> <span class="mi">31</span> <span class="n">Dec</span> <span class="mi">20</span> <span class="mi">09</span><span class="p">:</span><span class="mi">50</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">www</span><span class="o">/</span><span class="n">html</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">php</span> <span class="o">-&gt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">zabbix</span><span class="o">/</span><span class="n">web</span><span class="o">/</span><span class="n">zabbix</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">php</span>
-</pre></div>
-</div>
-<p>/etc/zabbix/web/zabbix.conf.php の内容は以下のようになっていました。</p>
-<div class="code php last highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?php
-// Zabbix GUI configuration file.
-global $DB;
-
-$DB[&#39;TYPE&#39;]     = &#39;POSTGRESQL&#39;;
-$DB[&#39;SERVER&#39;]   = &#39;127.0.0.1&#39;;
-$DB[&#39;PORT&#39;]     = &#39;0&#39;;
-$DB[&#39;DATABASE&#39;] = &#39;zabbix&#39;;
-$DB[&#39;USER&#39;]     = &#39;zabbix&#39;;
-$DB[&#39;PASSWORD&#39;] = &#39;上記で設定したパスワード&#39;;
-
-// Schema name. Used for IBM DB2 and PostgreSQL.
-$DB[&#39;SCHEMA&#39;] = &#39;&#39;;
-
-$ZBX_SERVER      = &#39;localhost&#39;;
-$ZBX_SERVER_PORT = &#39;10051&#39;;
-$ZBX_SERVER_NAME = &#39;&#39;;
-
-$IMAGE_FORMAT_DEFAULT = IMAGE_FORMAT_PNG;
-</pre></div>
-</div>
-</div>
-</div>
-<div class="section" id="id6">
-<h2>Zabbixフロントエンドへのログイン<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>ウェブブラウザで <code class="code docutils literal notranslate"><span class="pre">http://コンテナのIPアドレス/zabbix</span></code> を開くとZabbixのログイン画面が表示されます。初期設定ではユーザ名 <code class="code docutils literal notranslate"><span class="pre">Admin</span></code> 、パスワードは <code class="code docutils literal notranslate"><span class="pre">zabbix</span></code> でログイン可能です。ログイン後ページ右上の人のアイコンをクリックしてパスワードを変更してください。</p>
-</div>
-<div class="section" id="id7">
-<h2>Zabbixエージェントのインストール<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>以下のコマンドを実行してZabbixエージェントをインストールします。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="o">-</span><span class="n">y</span> <span class="n">install</span> <span class="n">zabbix</span><span class="o">-</span><span class="n">agent</span>
-</pre></div>
-</div>
-<p>インストール後以下の手順でZabbixエージェントからのデータが来ていることを確認します。</p>
-<ol class="arabic simple">
-<li>Zabbixのフロントエンドで[Monitoring]/[Latest data]メニューを選択。</li>
-<li>フィルタのフォームのHostsの[Select]ボタンを押しポップアップが表示されたらZabbix serverを選んで[Select]を押す。</li>
-<li>ポップアップが閉じたら[Apply]を押す。</li>
-<li>フィルタのフォームの下に最新データ一覧が表示され、Last checkの時刻がほぼ現在日時になっていればOK。</li>
-</ol>
-</div>
-</div>
-
-
-          </div>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
-             >索引</a></li>
+             accesskey="I">索引</a></li>
         <li class="right" >
           <a href="force-delete-postgresql-database.html" title="PostgreSQLのデータベースを強制削除する"
-             >次へ</a> |</li>
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="run-apache-trafficserver-tests-on-docker.html" title="DockerでApache Traffic Serverのテストを実行する"
-             >前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+             accesskey="P">前へ</a> |</li>
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2018, Hiroaki Nakamura.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Hiroaki Nakamura.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1 で生成しました。
     </div>
   </body>
 </html>
