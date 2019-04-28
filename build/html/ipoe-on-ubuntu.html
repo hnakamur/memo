@@ -2,86 +2,44 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>UbuntuでIPoE &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
-    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="OpenSSLで自己認証局を作る" href="create-self-signed-certificate-authority-with-openssl.html" />
-    <link rel="prev" title="Windows 10にSphinxをインストール" href="install-sphinx-on-windows10.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
-<link href="_static/solarized-dark.css" rel="stylesheet">
+    <link rel="prev" title="Windows 10にSphinxをインストール" href="install-sphinx-on-windows10.html" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="shortcut icon" type="image/png" href="_static/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=0.8">
+    
+    
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
-             accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="create-self-signed-certificate-authority-with-openssl.html" title="OpenSSLで自己認証局を作る"
-             accesskey="N">次へ</a> |</li>
-        <li class="right" >
-          <a href="install-sphinx-on-windows10.html" title="Windows 10にSphinxをインストール"
-             accesskey="P">前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+        <li class="responsive-menu"><a href="#sidebar-anchor" title="Navigation">&#9776;</a></li>
+        <li><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">UbuntuでIPoE</a><ul>
-<li><a class="reference internal" href="#id1">はじめに</a></li>
-<li><a class="reference internal" href="#id2">構成図</a></li>
-<li><a class="reference internal" href="#id3">ホームゲートウェイの設定</a></li>
-<li><a class="reference internal" href="#id4">サーバのネットワーク設定</a></li>
-<li><a class="reference internal" href="#ipv4">IPv4フォワーディングの有効化</a></li>
-<li><a class="reference internal" href="#ipoe">IPoEの設定</a></li>
-<li><a class="reference internal" href="#iptables">iptablesの設定</a></li>
-<li><a class="reference internal" href="#keepalived">keepalivedの設定</a></li>
-<li><a class="reference internal" href="#dhcp">DHCPサーバの設定</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>前のトピックへ</h4>
-  <p class="topless"><a href="install-sphinx-on-windows10.html"
-                        title="前の章へ">Windows 10にSphinxをインストール</a></p>
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="create-self-signed-certificate-authority-with-openssl.html"
-                        title="次の章へ">OpenSSLで自己認証局を作る</a></p>
-  <div role="note" aria-label="source link">
-    <h3>このページ</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/ipoe-on-ubuntu.rst.txt"
-            rel="nofollow">ソースコードを表示</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>クイック検索</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="検索" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -91,23 +49,17 @@
   <div class="section" id="ubuntuipoe">
 <h1>UbuntuでIPoE<a class="headerlink" href="#ubuntuipoe" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <ul class="simple">
-<li><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">作成日:</th><td class="field-body">2018-12-01</td>
-</tr>
-</tbody>
-</table>
+<li><dl class="field-list simple">
+<dt class="field-odd">作成日</dt>
+<dd class="field-odd"><p>2018-12-01</p>
+</dd>
+</dl>
 </li>
-<li><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">更新日:</th><td class="field-body">2018-12-04</td>
-</tr>
-</tbody>
-</table>
+<li><dl class="field-list simple">
+<dt class="field-odd">更新日</dt>
+<dd class="field-odd"><p>2018-12-04</p>
+</dd>
+</dl>
 </li>
 </ul>
 <div class="section" id="id1">
@@ -246,34 +198,32 @@ WiFiルータはブリッジモードを使用しています。</p>
 <div class="section" id="id3">
 <h2>ホームゲートウェイの設定<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <ul class="simple">
-<li><dl class="first docutils">
-<dt>DHCPサーバの無効化</dt>
-<dd><ul class="first last">
-<li>[詳細設定]/[DHCPv4サーバ設定]で[DHCPv4サーバ機能]の[使用する]チェックボックスをオフ</li>
+<li><dl class="simple">
+<dt>DHCPサーバの無効化</dt><dd><ul>
+<li><p>[詳細設定]/[DHCPv4サーバ設定]で[DHCPv4サーバ機能]の[使用する]チェックボックスをオフ</p></li>
 </ul>
 </dd>
 </dl>
 </li>
-<li><dl class="first docutils">
-<dt>LAN側の静的ルーティング</dt>
-<dd><ul class="first last">
-<li>[詳細設定]/[LAN側静的ルーティング設定]で以下のように設定します。</li>
+<li><dl class="simple">
+<dt>LAN側の静的ルーティング</dt><dd><ul>
+<li><p>[詳細設定]/[LAN側静的ルーティング設定]で以下のように設定します。</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 </ul>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="50%" />
-<col width="50%" />
+<col style="width: 50%" />
+<col style="width: 50%" />
 </colgroup>
-<tbody valign="top">
-<tr class="row-odd"><th class="stub">宛先IPアドレス/マスク長</th>
-<td>192.168.2.0/24</td>
+<tbody>
+<tr class="row-odd"><th class="stub"><p>宛先IPアドレス/マスク長</p></th>
+<td><p>192.168.2.0/24</p></td>
 </tr>
-<tr class="row-even"><th class="stub">ゲートウェイ</th>
-<td>192.168.1.2</td>
+<tr class="row-even"><th class="stub"><p>ゲートウェイ</p></th>
+<td><p>192.168.1.2</p></td>
 </tr>
 </tbody>
 </table>
@@ -281,38 +231,38 @@ WiFiルータはブリッジモードを使用しています。</p>
 <div class="section" id="id4">
 <h2>サーバのネットワーク設定<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>beagleの <code class="code docutils literal notranslate"><span class="pre">/etc/netplan/01-netcfg.yaml</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">network</span><span class="p">:</span>
-  <span class="n">version</span><span class="p">:</span> <span class="mi">2</span>
-  <span class="n">renderer</span><span class="p">:</span> <span class="n">networkd</span>
-  <span class="n">ethernets</span><span class="p">:</span>
-    <span class="n">enp3s0</span><span class="p">:</span>
-      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
-      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.3</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
-      <span class="n">gateway4</span><span class="p">:</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span>
-      <span class="n">nameservers</span><span class="p">:</span>
-        <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">]</span>
-      <span class="n">dhcp6</span><span class="p">:</span> <span class="n">no</span>
-    <span class="n">enp4s0</span><span class="p">:</span>
-      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
-      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">2.2</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp3s0:
+      dhcp4: no
+      addresses: [192.168.1.3/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [192.168.1.1]
+      dhcp6: no
+    enp4s0:
+      dhcp4: no
+      addresses: [192.168.2.2/24]
 </pre></div>
 </div>
 <p>primergyの <code class="code docutils literal notranslate"><span class="pre">/etc/netplan/01-netcfg.yaml</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">network</span><span class="p">:</span>
-  <span class="n">version</span><span class="p">:</span> <span class="mi">2</span>
-  <span class="n">renderer</span><span class="p">:</span> <span class="n">networkd</span>
-  <span class="n">ethernets</span><span class="p">:</span>
-    <span class="n">enp0s25</span><span class="p">:</span>
-      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
-      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.4</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
-      <span class="n">gateway4</span><span class="p">:</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span>
-      <span class="n">nameservers</span><span class="p">:</span>
-        <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">]</span>
-      <span class="n">dhcp6</span><span class="p">:</span> <span class="n">no</span>
-    <span class="n">enp2s0</span><span class="p">:</span>
-      <span class="n">dhcp4</span><span class="p">:</span> <span class="n">no</span>
-      <span class="n">addresses</span><span class="p">:</span> <span class="p">[</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">2.3</span><span class="o">/</span><span class="mi">24</span><span class="p">]</span>
-      <span class="n">dhcp6</span><span class="p">:</span> <span class="n">no</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s25:
+      dhcp4: no
+      addresses: [192.168.1.4/24]
+      gateway4: 192.168.1.1
+      nameservers:
+        addresses: [192.168.1.1]
+      dhcp6: no
+    enp2s0:
+      dhcp4: no
+      addresses: [192.168.2.3/24]
+      dhcp6: no
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">netplan</span> <span class="pre">apply</span></code> コマンドで反映しました。</p>
@@ -320,12 +270,12 @@ WiFiルータはブリッジモードを使用しています。</p>
 <div class="section" id="ipv4">
 <h2>IPv4フォワーディングの有効化<a class="headerlink" href="#ipv4" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>IPv4のルータとして機能させるため、以下のコマンドを実行してIPv4フォワーディングを有効化します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">sysctl</span> <span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">ip_forward</span><span class="o">=</span><span class="mi">1</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo sysctl net.ipv4.ip_forward=1</span>
 </pre></div>
 </div>
 <p>OS再起動時にもこの設定がされるように <code class="code docutils literal notranslate"><span class="pre">/etc/sysctl.d/99-sysctl.conf</span></code> 内の以下の行をアンコメントします。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Uncomment the next line to enable packet forwarding for IPv4</span>
-<span class="n">net</span><span class="o">.</span><span class="n">ipv4</span><span class="o">.</span><span class="n">ip_forward</span><span class="o">=</span><span class="mi">1</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Uncomment the next line to enable packet forwarding for IPv4
+net.ipv4.ip_forward=1
 </pre></div>
 </div>
 </div>
@@ -333,74 +283,74 @@ WiFiルータはブリッジモードを使用しています。</p>
 <h2>IPoEの設定<a class="headerlink" href="#ipoe" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>上記のように配線した状態で <code class="code docutils literal notranslate"><span class="pre">ip</span> <span class="pre">a</span></code> でIPアドレスを確認するとIPv6のグローバルアドレスがついていました。</p>
 <p><code class="code docutils literal notranslate"><span class="pre">ip</span> <span class="pre">-6</span> <span class="pre">tunnel</span> <span class="pre">add</span></code> コマンドでmodeにipip6（IPv4 over IPv6トンネル）を指定することでトンネルを作成します。以下のようなシェルスクリプト <code class="code docutils literal notranslate"><span class="pre">/usr/local/sbin/ipoe.sh</span></code> を作成しました。</p>
-<div class="code sh highlight-default notranslate"><div class="highlight"><pre><span></span>#!/bin/sh -x
-set -eu
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh -x</span>
+<span class="nb">set</span> -eu
 
-#. /etc/default/ipoe
+<span class="c1">#. /etc/default/ipoe</span>
 
-tunnel_name=&quot;${TUNNEL_NAME}&quot;
-wan_interface=&quot;${WAN_INTERFACE}&quot;
-gateway_addr=&quot;${GATEWAY_ADDR}&quot;
+<span class="nv">tunnel_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">wan_interface</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WAN_INTERFACE</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">gateway_addr</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">GATEWAY_ADDR</span><span class="si">}</span><span class="s2">&quot;</span>
 
-case &quot;$1&quot; in
-start)
-  while :; do
-    local_addr=$(/sbin/ip a | /usr/bin/awk &#39;/mngtmpaddr/ {print substr($2, 1, index($2, &quot;/&quot;) - 1); exit}&#39;)
-    if [ -n &quot;$local_addr&quot; ]; then
-      break
-    fi
+<span class="k">case</span> <span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span> in
+start<span class="o">)</span>
+  <span class="k">while</span> :<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">local_addr</span><span class="o">=</span><span class="k">$(</span>/sbin/ip a <span class="p">|</span> /usr/bin/awk <span class="s1">&#39;/mngtmpaddr/ {print substr($2, 1, index($2, &quot;/&quot;) - 1); exit}&#39;</span><span class="k">)</span>
+    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$local_addr</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+      <span class="nb">break</span>
+    <span class="k">fi</span>
 
-    sleep 1
-  done
-  /sbin/ip -6 tunnel add &quot;${tunnel_name}&quot; mode ipip6 remote &quot;${gateway_addr}&quot; local &quot;${local_addr}&quot; dev &quot;${wan_interface}&quot;
-  /sbin/ip link set &quot;${tunnel_name}&quot; up
-  /sbin/ip route delete default || :
-  /sbin/ip route add default dev &quot;${tunnel_name}&quot;
-  ;;
-stop)
-  /sbin/ip link set &quot;${tunnel_name}&quot; down
-  /sbin/ip -6 tunnel del &quot;${tunnel_name}&quot;
-  /sbin/ip route add default dev &quot;${wan_interface}&quot;
-  ;;
-*)
-  echo &quot;Usage: ipoe.sh (start|stop)&quot;
-  exit 1
-  ;;
-esac
+    sleep <span class="m">1</span>
+  <span class="k">done</span>
+  /sbin/ip -6 tunnel add <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span> mode ipip6 remote <span class="s2">&quot;</span><span class="si">${</span><span class="nv">gateway_addr</span><span class="si">}</span><span class="s2">&quot;</span> <span class="nb">local</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">local_addr</span><span class="si">}</span><span class="s2">&quot;</span> dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">wan_interface</span><span class="si">}</span><span class="s2">&quot;</span>
+  /sbin/ip link <span class="nb">set</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span> up
+  /sbin/ip route delete default <span class="o">||</span> :
+  /sbin/ip route add default dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span>
+  <span class="p">;;</span>
+stop<span class="o">)</span>
+  /sbin/ip link <span class="nb">set</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span> down
+  /sbin/ip -6 tunnel del <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span>
+  /sbin/ip route add default dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">wan_interface</span><span class="si">}</span><span class="s2">&quot;</span>
+  <span class="p">;;</span>
+*<span class="o">)</span>
+  <span class="nb">echo</span> <span class="s2">&quot;Usage: ipoe.sh (start|stop)&quot;</span>
+  <span class="nb">exit</span> <span class="m">1</span>
+  <span class="p">;;</span>
+<span class="k">esac</span>
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">local_addr</span></code> を設定している箇所は以下のような行からIPv6アドレスを取り出しています。もしmngtmpaddrを含む行が複数ある場合は最初の行を採用します。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">inet6</span> <span class="n">xxxx</span><span class="p">:</span><span class="n">xxx</span><span class="p">:</span><span class="n">xxx</span><span class="p">:</span><span class="n">xxxx</span><span class="p">:</span><span class="n">xxxx</span><span class="p">:</span><span class="n">xxx</span><span class="p">:</span><span class="n">xxxx</span><span class="p">:</span><span class="n">xxxx</span><span class="o">/</span><span class="mi">64</span> <span class="n">scope</span> <span class="k">global</span> <span class="n">dynamic</span> <span class="n">mngtmpaddr</span> <span class="n">noprefixroute</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>inet6 xxxx:xxx:xxx:xxxx:xxxx:xxx:xxxx:xxxx/64 scope global dynamic mngtmpaddr noprefixroute
 </pre></div>
 </div>
 <p>サービス定義ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/systemd/system/ipoe.service</span></code> は以下のようにしました。
 <a class="reference external" href="https://wiki.archlinux.jp/index.php/IPv6_%E3%83%88%E3%83%B3%E3%83%8D%E3%83%AB%E3%83%96%E3%83%AD%E3%83%BC%E3%82%AB%E3%83%BC%E8%A8%AD%E5%AE%9A">IPv6 トンネルブローカー設定 - ArchWiki</a> でsystemd-networkdを使ったトンネルの設定方法も見つけたのですが、こちらは試していません。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Unit</span><span class="p">]</span>
-<span class="n">Description</span><span class="o">=</span><span class="n">IPoE</span> <span class="n">tunnel</span>
-<span class="n">After</span><span class="o">=</span><span class="n">network</span><span class="o">.</span><span class="n">target</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[Unit]
+Description=IPoE tunnel
+After=network.target
 
-<span class="p">[</span><span class="n">Service</span><span class="p">]</span>
-<span class="n">Type</span><span class="o">=</span><span class="n">oneshot</span>
-<span class="n">RemainAfterExit</span><span class="o">=</span><span class="n">yes</span>
-<span class="n">EnvironmentFile</span><span class="o">=/</span><span class="n">etc</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">ipoe</span>
-<span class="n">ExecStart</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ipoe</span><span class="o">.</span><span class="n">sh</span> <span class="n">start</span>
-<span class="n">ExecStop</span><span class="o">=/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">sbin</span><span class="o">/</span><span class="n">ipoe</span><span class="o">.</span><span class="n">sh</span> <span class="n">stop</span>
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+EnvironmentFile=/etc/default/ipoe
+ExecStart=/usr/local/sbin/ipoe.sh start
+ExecStop=/usr/local/sbin/ipoe.sh stop
 
-<span class="p">[</span><span class="n">Install</span><span class="p">]</span>
-<span class="n">WantedBy</span><span class="o">=</span><span class="n">multi</span><span class="o">-</span><span class="n">user</span><span class="o">.</span><span class="n">target</span>
+[Install]
+WantedBy=multi-user.target
 </pre></div>
 </div>
 <p>設定ファイル <code class="code docutils literal notranslate"><span class="pre">/etc/default/ipoe</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># tunnel device name</span>
-<span class="n">TUNNEL_NAME</span><span class="o">=</span><span class="n">ip6tnl1</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># tunnel device name
+TUNNEL_NAME=ip6tnl1
 
-<span class="c1"># WAN network interface</span>
-<span class="n">WAN_INTERFACE</span><span class="o">=</span><span class="n">enp0s25</span>
+# WAN network interface
+WAN_INTERFACE=enp0s25
 
-<span class="c1"># Gateway address</span>
-<span class="c1"># You can get this address by running the following command.</span>
-<span class="c1"># dig -t aaaa gw.transix.jp</span>
-<span class="n">GATEWAY_ADDR</span><span class="o">=</span><span class="mi">2404</span><span class="p">:</span><span class="mf">8e01</span><span class="p">::</span><span class="n">feed</span><span class="p">:</span><span class="mi">100</span>
+# Gateway address
+# You can get this address by running the following command.
+# dig -t aaaa gw.transix.jp
+GATEWAY_ADDR=2404:8e01::feed:100
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">WAN_INTERFACE</span></code> は実際の環境に応じて変更してください。
@@ -408,21 +358,21 @@ esac
 NTT西日本エリアだと <code class="code docutils literal notranslate"><span class="pre">2404:8e01::feed:100</span></code> と <code class="code docutils literal notranslate"><span class="pre">2404:8e01::feed:101</span></code> のラウンドロビンになっていました。
 <a class="reference external" href="https://faq.interlink.or.jp/faq2/View/wcDisplayContent.aspx?id=220">YAMAHA RTX1200の設定マニュアル</a> によるとNTT東日本エリアでは <code class="code docutils literal notranslate"><span class="pre">2404:8e00::feed:100</span></code> と <code class="code docutils literal notranslate"><span class="pre">2404:8e00::feed:101</span></code> で、エリアは <a class="reference external" href="http://www.ntt.co.jp/product/category/area.html">NTT東日本、NTT西日本のサービス提供地域について</a> で確認できます。</p>
 <p>以下のコマンドで反映しました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">daemon</span><span class="o">-</span><span class="n">reload</span>
-<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">start</span> <span class="n">ipoe</span>
-<span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">enable</span> <span class="n">ipoe</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo systemctl daemon-reload</span>
+<span class="go">sudo systemctl start ipoe</span>
+<span class="go">sudo systemctl enable ipoe</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="iptables">
 <h2>iptablesの設定<a class="headerlink" href="#iptables" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>ファイアウォールは <a class="reference external" href="https://help.ubuntu.com/community/UFW">UFW</a> は使わず、iptablesとiptables-persistentを使っています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">iptables</span><span class="o">-</span><span class="n">persistent</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt install iptables-persistent</span>
 </pre></div>
 </div>
 <p>設定は以下の通りです。LXDとdockerを使っているのでそれらの設定も含まれています。</p>
 <p><code class="code docutils literal notranslate"><span class="pre">/etc/iptables/rules.v4</span></code></p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span># Generated by iptables-save v1.6.1 on Sat Dec  1 14:44:22 2018
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Generated by iptables-save v1.6.1 on Sat Dec  1 14:44:22 2018
 *filter
 :INPUT ACCEPT [238:15436]
 :FORWARD ACCEPT [0:0]
@@ -489,7 +439,7 @@ COMMIT
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">/etc/iptables/rules.v6</span></code></p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span># Generated by ip6tables-save v1.6.1 on Mon Nov 12 18:31:46 2018
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Generated by ip6tables-save v1.6.1 on Mon Nov 12 18:31:46 2018
 *nat
 :PREROUTING ACCEPT [5513:616145]
 :INPUT ACCEPT [5243:585056]
@@ -533,13 +483,13 @@ COMMIT
 </pre></div>
 </div>
 <p>ファイルの内容を変更したら以下のコマンドを実行して反映します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">iptables</span><span class="o">-</span><span class="n">restore</span> <span class="o">&lt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v4</span>
-<span class="n">sudo</span> <span class="n">ip6tables</span><span class="o">-</span><span class="n">restore</span> <span class="o">&lt;</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v6</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo iptables-restore &lt; /etc/iptables/rules.v4</span>
+<span class="go">sudo ip6tables-restore &lt; /etc/iptables/rules.v6</span>
 </pre></div>
 </div>
 <p>逆に設定をファイルに保存するには以下のコマンドを実行します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">iptables</span><span class="o">-</span><span class="n">save</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v4</span>
-<span class="n">sudo</span> <span class="n">ip6tables</span><span class="o">-</span><span class="n">save</span> <span class="o">|</span> <span class="n">sudo</span> <span class="n">tee</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">iptables</span><span class="o">/</span><span class="n">rules</span><span class="o">.</span><span class="n">v6</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo iptables-save | sudo tee /etc/iptables/rules.v4</span>
+<span class="go">sudo ip6tables-save | sudo tee /etc/iptables/rules.v6</span>
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">/etc/iptables/rules.v{4,6}</span></code> の内容はbitbucket.orgのプライベートレポジトリで管理しています。</p>
@@ -548,73 +498,73 @@ COMMIT
 <h2>keepalivedの設定<a class="headerlink" href="#keepalived" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>keepalivedを使ってVIP（仮想IPアドレス）を設定しています。
 keepalivedは標準パッケージをインストールしました。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">keepalived</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt install keepalived</span>
 </pre></div>
 </div>
 <p><code class="code docutils literal notranslate"><span class="pre">/etc/keepalived/keepalived.conf</span></code> は以下の通りです。送信元のメールアドレスは途中を大文字にしてどこから送られたかを判別できるようにしています。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">global_defs</span> <span class="p">{</span>
-   <span class="n">notification_email</span> <span class="p">{</span>
-     <span class="n">john</span><span class="o">.</span><span class="n">doe</span><span class="o">+</span><span class="n">home</span><span class="nd">@example</span><span class="o">.</span><span class="n">com</span>
-   <span class="p">}</span>
-   <span class="n">notification_email_from</span> <span class="n">jOhn</span><span class="o">.</span><span class="n">doe</span><span class="nd">@example</span><span class="o">.</span><span class="n">com</span>
-   <span class="n">smtp_server</span> <span class="n">localhost</span>
-   <span class="n">smtp_connect_timeout</span> <span class="mi">30</span>
-   <span class="n">router_id</span> <span class="mi">1</span>
-<span class="p">}</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>global_defs {
+   notification_email {
+     john.doe+home@example.com
+   }
+   notification_email_from jOhn.doe@example.com
+   smtp_server localhost
+   smtp_connect_timeout 30
+   router_id 1
+}
 
-<span class="n">include</span> <span class="n">vrrp</span><span class="o">.</span><span class="n">conf</span>
+include vrrp.conf
 </pre></div>
 </div>
 <p>beagleの <code class="code docutils literal notranslate"><span class="pre">/etc/keepalived/vrrp.conf</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vrrp_instance</span> <span class="n">VRRP1</span> <span class="p">{</span>
-  <span class="n">state</span> <span class="n">MASTER</span>
-  <span class="n">interface</span> <span class="n">enp3s0</span>
-  <span class="n">virtual_router_id</span> <span class="mi">1</span>
-  <span class="n">priority</span> <span class="mi">200</span>
-  <span class="n">advert_int</span> <span class="mi">1</span>
-  <span class="n">smtp_alert</span>
-  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
-    <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.2</span><span class="o">/</span><span class="mi">24</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>vrrp_instance VRRP1 {
+  state MASTER
+  interface enp3s0
+  virtual_router_id 1
+  priority 200
+  advert_int 1
+  smtp_alert
+  virtual_ipaddress {
+    192.168.1.2/24
+  }
+}
 
-<span class="n">vrrp_instance</span> <span class="n">VRRP2</span> <span class="p">{</span>
-  <span class="n">state</span> <span class="n">MASTER</span>
-  <span class="n">interface</span> <span class="n">enp4s0</span>
-  <span class="n">virtual_router_id</span> <span class="mi">2</span>
-  <span class="n">priority</span> <span class="mi">200</span>
-  <span class="n">advert_int</span> <span class="mi">1</span>
-  <span class="n">smtp_alert</span>
-  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
-    <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="o">/</span><span class="mi">24</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+vrrp_instance VRRP2 {
+  state MASTER
+  interface enp4s0
+  virtual_router_id 2
+  priority 200
+  advert_int 1
+  smtp_alert
+  virtual_ipaddress {
+    192.168.2.1/24
+  }
+}
 </pre></div>
 </div>
 <p>primergyの <code class="code docutils literal notranslate"><span class="pre">/etc/keepalived/vrrp.conf</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">vrrp_instance</span> <span class="n">VRRP1</span> <span class="p">{</span>
-  <span class="n">state</span> <span class="n">BACKUP</span>
-  <span class="n">interface</span> <span class="n">enp0s25</span>
-  <span class="n">virtual_router_id</span> <span class="mi">1</span>
-  <span class="n">priority</span> <span class="mi">100</span>
-  <span class="n">advert_int</span> <span class="mi">1</span>
-  <span class="n">smtp_alert</span>
-  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
-    <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.2</span><span class="o">/</span><span class="mi">24</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>vrrp_instance VRRP1 {
+  state BACKUP
+  interface enp0s25
+  virtual_router_id 1
+  priority 100
+  advert_int 1
+  smtp_alert
+  virtual_ipaddress {
+    192.168.1.2/24
+  }
+}
 
-<span class="n">vrrp_instance</span> <span class="n">VRRP2</span> <span class="p">{</span>
-  <span class="n">state</span> <span class="n">BACKUP</span>
-  <span class="n">interface</span> <span class="n">enp2s0</span>
-  <span class="n">virtual_router_id</span> <span class="mi">2</span>
-  <span class="n">priority</span> <span class="mi">100</span>
-  <span class="n">advert_int</span> <span class="mi">1</span>
-  <span class="n">smtp_alert</span>
-  <span class="n">virtual_ipaddress</span> <span class="p">{</span>
-    <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="o">/</span><span class="mi">24</span>
-  <span class="p">}</span>
-<span class="p">}</span>
+vrrp_instance VRRP2 {
+  state BACKUP
+  interface enp2s0
+  virtual_router_id 2
+  priority 100
+  advert_int 1
+  smtp_alert
+  virtual_ipaddress {
+    192.168.2.1/24
+  }
+}
 </pre></div>
 </div>
 <p>stateとpriorityをbeagleとprimergyで上記のように設定することでbeagleのほうを優先するようにしています。</p>
@@ -622,35 +572,35 @@ keepalivedは標準パッケージをインストールしました。</p>
 <div class="section" id="dhcp">
 <h2>DHCPサーバの設定<a class="headerlink" href="#dhcp" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>DHCPサーバはisc-dhcp-serverパッケージを使っています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">isc</span><span class="o">-</span><span class="n">dhcp</span><span class="o">-</span><span class="n">server</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">sudo apt install isc-dhcp-server</span>
 </pre></div>
 </div>
 <p>beagleの <code class="code docutils literal notranslate"><span class="pre">/etc/dhcp/dhcpd.conf</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">option</span> <span class="n">domain</span><span class="o">-</span><span class="n">name</span><span class="o">-</span><span class="n">servers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">;</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>option domain-name-servers 192.168.1.1;
 
-<span class="n">default</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">600</span><span class="p">;</span>
-<span class="nb">max</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">7200</span><span class="p">;</span>
+default-lease-time 600;
+max-lease-time 7200;
 
-<span class="n">ddns</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">style</span> <span class="n">none</span><span class="p">;</span>
+ddns-update-style none;
 
-<span class="n">subnet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.0</span> <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span> <span class="p">{</span>
-  <span class="nb">range</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.20</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.99</span><span class="p">;</span>
-  <span class="n">option</span> <span class="n">routers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="p">;</span>
-<span class="p">}</span>
+subnet 192.168.2.0 netmask 255.255.255.0 {
+  range 192.168.2.20 192.168.2.99;
+  option routers 192.168.2.1;
+}
 </pre></div>
 </div>
 <p>primergyの <code class="code docutils literal notranslate"><span class="pre">/etc/dhcp/dhcpd.conf</span></code> は以下の通りです。</p>
-<div class="code text highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">option</span> <span class="n">domain</span><span class="o">-</span><span class="n">name</span><span class="o">-</span><span class="n">servers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">1.1</span><span class="p">;</span>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>option domain-name-servers 192.168.1.1;
 
-<span class="n">default</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">600</span><span class="p">;</span>
-<span class="nb">max</span><span class="o">-</span><span class="n">lease</span><span class="o">-</span><span class="n">time</span> <span class="mi">7200</span><span class="p">;</span>
+default-lease-time 600;
+max-lease-time 7200;
 
-<span class="n">ddns</span><span class="o">-</span><span class="n">update</span><span class="o">-</span><span class="n">style</span> <span class="n">none</span><span class="p">;</span>
+ddns-update-style none;
 
-<span class="n">subnet</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.0</span> <span class="n">netmask</span> <span class="mf">255.255</span><span class="o">.</span><span class="mf">255.0</span> <span class="p">{</span>
-  <span class="nb">range</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.100</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.189</span><span class="p">;</span>
-  <span class="n">option</span> <span class="n">routers</span> <span class="mf">192.168</span><span class="o">.</span><span class="mf">2.1</span><span class="p">;</span>
-<span class="p">}</span>
+subnet 192.168.2.0 netmask 255.255.255.0 {
+  range 192.168.2.100 192.168.2.189;
+  option routers 192.168.2.1;
+}
 </pre></div>
 </div>
 <p>beagleとprimergyでDHCPのrangeを重ならないように設定し、ゲートウェイにはVIPを指定しています。こうすることで片方のサーバが停止してもThinkPadなどDHCPクライアントのマシンはそのまま通信できると同僚に教わりました。ありがとうございます！</p>
@@ -661,26 +611,72 @@ keepalivedは標準パッケージをインストールしました。</p>
           </div>
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+    <a id="sidebar-anchor"></a>
+    
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">UbuntuでIPoE</a><ul>
+<li><a class="reference internal" href="#id1">はじめに</a></li>
+<li><a class="reference internal" href="#id2">構成図</a></li>
+<li><a class="reference internal" href="#id3">ホームゲートウェイの設定</a></li>
+<li><a class="reference internal" href="#id4">サーバのネットワーク設定</a></li>
+<li><a class="reference internal" href="#ipv4">IPv4フォワーディングの有効化</a></li>
+<li><a class="reference internal" href="#ipoe">IPoEの設定</a></li>
+<li><a class="reference internal" href="#iptables">iptablesの設定</a></li>
+<li><a class="reference internal" href="#keepalived">keepalivedの設定</a></li>
+<li><a class="reference internal" href="#dhcp">DHCPサーバの設定</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="install-sphinx-on-windows10.html"
+                        title="前の章へ">Windows 10にSphinxをインストール</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="create-self-signed-certificate-authority-with-openssl.html"
+                        title="次の章へ">OpenSSLで自己認証局を作る</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ipoe-on-ubuntu.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
-             >索引</a></li>
+             accesskey="I">索引</a></li>
         <li class="right" >
           <a href="create-self-signed-certificate-authority-with-openssl.html" title="OpenSSLで自己認証局を作る"
-             >次へ</a> |</li>
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="install-sphinx-on-windows10.html" title="Windows 10にSphinxをインストール"
-             >前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+             accesskey="P">前へ</a> |</li>
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2018, Hiroaki Nakamura.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Hiroaki Nakamura.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1 で生成しました。
     </div>
   </body>
 </html>

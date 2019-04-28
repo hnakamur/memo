@@ -2,83 +2,44 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>DockerでApache Traffic Serverのテストを実行する &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
-    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ" href="setup-zabbix-postgresql-timescaledb-pipelinedb.html" />
-    <link rel="prev" title="OpenSSLで自己認証局を作る" href="create-self-signed-certificate-authority-with-openssl.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
-<link href="_static/solarized-dark.css" rel="stylesheet">
+    <link rel="prev" title="OpenSSLで自己認証局を作る" href="create-self-signed-certificate-authority-with-openssl.html" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="shortcut icon" type="image/png" href="_static/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=0.8">
+    
+    
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
-             accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="setup-zabbix-postgresql-timescaledb-pipelinedb.html" title="ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ"
-             accesskey="N">次へ</a> |</li>
-        <li class="right" >
-          <a href="create-self-signed-certificate-authority-with-openssl.html" title="OpenSSLで自己認証局を作る"
-             accesskey="P">前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+        <li class="responsive-menu"><a href="#sidebar-anchor" title="Navigation">&#9776;</a></li>
+        <li><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">DockerでApache Traffic Serverのテストを実行する</a><ul>
-<li><a class="reference internal" href="#id1">はじめに</a></li>
-<li><a class="reference internal" href="#id3">ビルド手順</a></li>
-<li><a class="reference internal" href="#id4">テストツール</a></li>
-<li><a class="reference internal" href="#id5">テストツールAuTestの拡張</a></li>
-<li><a class="reference internal" href="#id6">テストの実行</a></li>
-<li><a class="reference internal" href="#id7">テストの実行結果</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>前のトピックへ</h4>
-  <p class="topless"><a href="create-self-signed-certificate-authority-with-openssl.html"
-                        title="前の章へ">OpenSSLで自己認証局を作る</a></p>
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="setup-zabbix-postgresql-timescaledb-pipelinedb.html"
-                        title="次の章へ">ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ</a></p>
-  <div role="note" aria-label="source link">
-    <h3>このページ</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/run-apache-trafficserver-tests-on-docker.rst.txt"
-            rel="nofollow">ソースコードを表示</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>クイック検索</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="検索" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -88,20 +49,17 @@
   <div class="section" id="dockerapache-traffic-server">
 <h1>DockerでApache Traffic Serverのテストを実行する<a class="headerlink" href="#dockerapache-traffic-server" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <ul class="simple">
-<li><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">更新日:</th><td class="field-body">2018-12-27</td>
-</tr>
-</tbody>
-</table>
+<li><dl class="field-list simple">
+<dt class="field-odd">更新日</dt>
+<dd class="field-odd"><p>2018-12-27</p>
+</dd>
+</dl>
 </li>
 </ul>
 <div class="section" id="id1">
 <h2>はじめに<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><a class="reference external" href="https://github.com/apache/trafficserver/tree/6ac53e6487e7ccd691530a59393491d6baf64228/tests">githubのtrafficseverのレポジトリのtestsディレクトリのREADME</a> (<a class="reference external" href="https://github.com/apache/trafficserver/tree/master/tests">最新版</a>)を参考にテストを実行しようとしたのですが、試行錯誤が必要だったので手順をDockerfileにまとめました。</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FROM</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">18.04</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">FROM</span> <span class="n">ubuntu</span><span class="p">:</span><span class="mf">18.04</span>
 
 <span class="c1"># Install packages to build trafficserver</span>
 <span class="n">RUN</span> <span class="n">ln</span> <span class="o">-</span><span class="n">fs</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">share</span><span class="o">/</span><span class="n">zoneinfo</span><span class="o">/</span><span class="n">Etc</span><span class="o">/</span><span class="n">UTC</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">localtime</span> \
@@ -163,7 +121,8 @@
 <p><a class="reference external" href="https://github.com/apache/trafficserver/tree/6ac53e6487e7ccd691530a59393491d6baf64228/tests">githubのtrafficseverのレポジトリのtestsディレクトリのREADME</a> に書かれていますが
 <a class="reference external" href="https://pypi.org/project/autest/">autest</a> というテストツールを使っています。</p>
 <blockquote>
-<div>Reusable Gold testing system, or autest for short, is a testing system targeted toward gold file, command line process testing</div></blockquote>
+<div><p>Reusable Gold testing system, or autest for short, is a testing system targeted toward gold file, command line process testing</p>
+</div></blockquote>
 <p>AuTestのAuは金の元素記号ですね。bitbucketにレポジトリ <a class="reference external" href="https://bitbucket.org/dragon512/reusable-gold-testing-system.git">reusable-gold-testing-system</a> があります。</p>
 </div>
 <div class="section" id="id5">
@@ -175,7 +134,7 @@
 <h2>テストの実行<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>trafficserverのtestsディレクトリ(<code class="code docutils literal notranslate"><span class="pre">/home/build/dev/trafficserver/tests</span></code>) に移動して
 <code class="code docutils literal notranslate"><span class="pre">virtualenv</span></code> で作成したPython3の環境を有効にしてテストを実行します。</p>
-<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">dev</span><span class="o">/</span><span class="n">trafficserver</span><span class="o">/</span><span class="n">tests</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">dev</span><span class="o">/</span><span class="n">trafficserver</span><span class="o">/</span><span class="n">tests</span>
 <span class="o">.</span> <span class="n">env</span><span class="o">-</span><span class="n">test</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span> \
 <span class="n">env</span><span class="o">-</span><span class="n">test</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">autest</span> <span class="o">-</span><span class="n">D</span> <span class="n">gold_tests</span> <span class="o">--</span><span class="n">ats</span><span class="o">-</span><span class="nb">bin</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="nb">bin</span>
 </pre></div>
@@ -195,26 +154,69 @@
           </div>
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+    <a id="sidebar-anchor"></a>
+    
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">DockerでApache Traffic Serverのテストを実行する</a><ul>
+<li><a class="reference internal" href="#id1">はじめに</a></li>
+<li><a class="reference internal" href="#id3">ビルド手順</a></li>
+<li><a class="reference internal" href="#id4">テストツール</a></li>
+<li><a class="reference internal" href="#id5">テストツールAuTestの拡張</a></li>
+<li><a class="reference internal" href="#id6">テストの実行</a></li>
+<li><a class="reference internal" href="#id7">テストの実行結果</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="create-self-signed-certificate-authority-with-openssl.html"
+                        title="前の章へ">OpenSSLで自己認証局を作る</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="setup-zabbix-postgresql-timescaledb-pipelinedb.html"
+                        title="次の章へ">ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/run-apache-trafficserver-tests-on-docker.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
-             >索引</a></li>
+             accesskey="I">索引</a></li>
         <li class="right" >
           <a href="setup-zabbix-postgresql-timescaledb-pipelinedb.html" title="ZabbixをPostgreSQLとTimescaleDBとPipelineDBでセットアップ"
-             >次へ</a> |</li>
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="create-self-signed-certificate-authority-with-openssl.html" title="OpenSSLで自己認証局を作る"
-             >前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+             accesskey="P">前へ</a> |</li>
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2018, Hiroaki Nakamura.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Hiroaki Nakamura.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1 で生成しました。
     </div>
   </body>
 </html>

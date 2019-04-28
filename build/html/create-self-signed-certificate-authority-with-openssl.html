@@ -2,40 +2,230 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>OpenSSLで自己認証局を作る &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
-    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
-    <link rel="prev" title="UbuntuでIPoE" href="ipoe-on-ubuntu.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
-<link href="_static/solarized-dark.css" rel="stylesheet">
+    <link rel="next" title="DockerでApache Traffic Serverのテストを実行する" href="run-apache-trafficserver-tests-on-docker.html" />
+    <link rel="prev" title="UbuntuでIPoE" href="ipoe-on-ubuntu.html" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="shortcut icon" type="image/png" href="_static/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=0.8">
+    
+    
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
-             accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="ipoe-on-ubuntu.html" title="UbuntuでIPoE"
-             accesskey="P">前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+        <li class="responsive-menu"><a href="#sidebar-anchor" title="Navigation">&#9776;</a></li>
+        <li><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
+    
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="openssl">
+<h1>OpenSSLで自己認証局を作る<a class="headerlink" href="#openssl" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<ul class="simple">
+<li><dl class="field-list simple">
+<dt class="field-odd">作成日</dt>
+<dd class="field-odd"><p>2018-12-05</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>毎回検索してたので自分用にまとめておきます。</p>
+<p><a class="reference external" href="https://gist.github.com/Soarez/9688998">How to setup your own CA with OpenSSL</a> と
+<a class="reference external" href="https://www.kakiro-web.com/linux/ssl-client.html">CentOS7.2 64bit OpenSSLを使用して自己認証局で署名したSSLクライアント証明書を作成 | kakiro-web カキローウェブ</a> を参考にしました。</p>
+<p>試した環境はUbuntu 18.04.1 LTSでOpenSSLのバージョンは1.1.0gです。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> openssl version
+<span class="go">OpenSSL 1.1.0g  2 Nov 2017</span>
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h2>自己認証局を作成<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>管理しやすくするため、OSのディストリビューションで用意されているファイルは使わず、独立した作業ディレクトリを作るという方針にします。</p>
+<p>カレントディレクトリに <code class="code docutils literal notranslate"><span class="pre">myCA</span></code> というディレクトリを作ってそこで管理することにします。以下のディレクトリ名、ファイル名、証明書のサブジェクトは適宜変更してください。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">mkdir -p myCA</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cd myCA</span>
+</pre></div>
+</div>
+<p>認証局の秘密鍵用のディレクトリを作って鍵を生成します。4096bitのRSAにしています。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">mkdir private</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl genrsa -out private/my-ca.key.pem 4096</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>認証局の秘密鍵の内容を確認するには以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl rsa -in private/my-ca.key.pem -text</span>
+</pre></div>
+</div>
+</div>
+<p>上で生成した秘密鍵を使って認証局の自己証明書を作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl req -new -sha256 -x509 -key private/my-ca.key.pem \</span>
+<span class="go">     -days 365 \</span>
+<span class="go">     -subj &quot;/C=JP/ST=Osaka/L=Osaka City/O=Example, Inc./CN=my-ca.example.com&quot; \</span>
+<span class="go">     -out my-ca.crt.pem</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>認証局の証明書の内容を確認するには以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl x509 -in my-ca.crt.pem -text</span>
+</pre></div>
+</div>
+</div>
+<p>認証局用の設定ファイル <code class="code docutils literal notranslate"><span class="pre">my-ca.cnf</span></code> を作成します。
+メッセージダイジェストのアルゴリズムはsha256にしています。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span>cat &lt;&lt;&#39;EOF&#39; &gt; my-ca.cnf
+# we use &#39;ca&#39; as the default section because we&#39;re usign the ca command
+[ ca ]
+default_ca = my_ca
+
+[ my_ca ]
+#  a text file containing the next serial number to use in hex. Mandatory.
+#  This file must be present and contain a valid serial number.
+serial = ./serial
+
+# the text database file to use. Mandatory. This file must be present though
+# initially it will be empty.
+database = ./index.txt
+
+# specifies the directory where new certificates will be placed. Mandatory.
+new_certs_dir = ./newcerts
+
+# the file containing the CA certificate. Mandatory
+certificate = ./my-ca.crt.pem
+
+# the file contaning the CA private key. Mandatory
+private_key = ./private/my-ca.key.pem
+
+# the message digest algorithm. Remember to not use MD5
+default_md = sha256
+
+# for how many days will the signed certificate be valid
+default_days = 365
+
+# a section with a set of variables corresponding to DN fields
+policy = my_policy
+
+[ my_policy ]
+# if the value is &quot;match&quot; then the field value must match the same field in the
+# CA certificate. If the value is &quot;supplied&quot; then it must be present.
+# Optional means it may be present. Any fields not mentioned are silently
+# deleted.
+countryName = match
+stateOrProvinceName = supplied
+organizationName = supplied
+commonName = supplied
+organizationalUnitName = optional
+commonName = supplied
+EOF
+</pre></div>
+</div>
+<p>認証局の動作に必要なファイルとディレクトリを作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">mkdir newcerts</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">touch index.txt</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">echo &#39;unique_subject = yes&#39; &gt; index.txt.attr</span>
+</pre></div>
+</div>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">echo &#39;01&#39; &gt; serial</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>自己認証局を使ってサーバ証明書を発行<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>まず上記で作成した <code class="code docutils literal notranslate"><span class="pre">myCA</span></code> ディレクトリに移動しておきます。</p>
+<p>まずサーバ証明書を保存する作業ディレクトリを作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">mkdir ../server-certs</span>
+</pre></div>
+</div>
+<p>サーバの秘密鍵を生成します。4096bitのRSAにしています。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl genrsa -out ../server-certs/sv01.example.com.key.pem 4096</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>サーバの秘密鍵の内容を確認するには以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl rsa -in ../server-certs/sv01.example.com.key.pem -text</span>
+</pre></div>
+</div>
+</div>
+<p>自己認証局に証明書の署名を依頼するためにCSR (Certificate Siging Request) を作成します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl req -new -key ../server-certs/sv01.example.com.key.pem \</span>
+<span class="go">  -sha256 \</span>
+<span class="go">  -subj &quot;/C=JP/ST=Osaka/L=Osaka City/O=Example, Inc./CN=sv01.example.com&quot; \</span>
+<span class="go">  -out ../server-certs/sv01.example.com.csr.pem</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>CSRの内容を確認するには以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl req -in ../server-certs/sv01.example.com.csr.pem -text</span>
+</pre></div>
+</div>
+</div>
+<p>自己認証局で証明書を発行し署名します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl ca -batch -config my-ca.cnf \</span>
+<span class="go">  -days 365 \</span>
+<span class="go">  -notext \</span>
+<span class="go">  -out ../server-certs/sv01.example.com.crt.pem \</span>
+<span class="go">  -infiles ../server-certs/sv01.example.com.csr.pem</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>証明書の内容を確認するには以下のコマンドを実行します。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">openssl x509 -in ../server-certs/sv01.example.com.crt.pem -text</span>
+</pre></div>
+</div>
+<p>また証明書を発行すると <code class="code docutils literal notranslate"><span class="pre">serial</span></code> ファイル内のシリアル番号が1増加され、<code class="code docutils literal notranslate"><span class="pre">index.txt</span></code> というファイルに発行したときのサブジェクト（<code class="code docutils literal notranslate"><span class="pre">-subj</span></code> オプションで指定した値）と発行時のシリアル番号などが記録されます。</p>
+<p>上記で <code class="code docutils literal notranslate"><span class="pre">index.txt.attr</span></code> に <code class="code docutils literal notranslate"><span class="pre">unique_subject</span> <span class="pre">=</span> <span class="pre">yes</span></code> と指定したので、同じサブジェクトで再度証明書を発行しようとすると <code class="code docutils literal notranslate"><span class="pre">index.txt</span></code> の中身をチェックしてエラーが出るようになります。</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
+    <a id="sidebar-anchor"></a>
+    
+
+  <h3><a href="index.html">目次</a></h3>
   <ul>
 <li><a class="reference internal" href="#">OpenSSLで自己認証局を作る</a><ul>
 <li><a class="reference internal" href="#id1">自己認証局を作成</a></li>
@@ -47,6 +237,9 @@
   <h4>前のトピックへ</h4>
   <p class="topless"><a href="ipoe-on-ubuntu.html"
                         title="前の章へ">UbuntuでIPoE</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="run-apache-trafficserver-tests-on-docker.html"
+                        title="次の章へ">DockerでApache Traffic Serverのテストを実行する</a></p>
   <div role="note" aria-label="source link">
     <h3>このページ</h3>
     <ul class="this-page-menu">
@@ -60,214 +253,32 @@
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="検索" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="openssl">
-<h1>OpenSSLで自己認証局を作る<a class="headerlink" href="#openssl" title="このヘッドラインへのパーマリンク">¶</a></h1>
-<ul class="simple">
-<li><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">作成日:</th><td class="field-body">2018-12-05</td>
-</tr>
-</tbody>
-</table>
-</li>
-</ul>
-<p>毎回検索してたので自分用にまとめておきます。</p>
-<p><a class="reference external" href="https://gist.github.com/Soarez/9688998">How to setup your own CA with OpenSSL</a> と
-<a class="reference external" href="https://www.kakiro-web.com/linux/ssl-client.html">CentOS7.2 64bit OpenSSLを使用して自己認証局で署名したSSLクライアント証明書を作成 | kakiro-web カキローウェブ</a> を参考にしました。</p>
-<p>試した環境はUbuntu 18.04.1 LTSでOpenSSLのバージョンは1.1.0gです。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span>$ openssl version
-OpenSSL 1.1.0g  2 Nov 2017
-</pre></div>
-</div>
-<div class="section" id="id1">
-<h2>自己認証局を作成<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>管理しやすくするため、OSのディストリビューションで用意されているファイルは使わず、独立した作業ディレクトリを作るという方針にします。</p>
-<p>カレントディレクトリに <code class="code docutils literal notranslate"><span class="pre">myCA</span></code> というディレクトリを作ってそこで管理することにします。以下のディレクトリ名、ファイル名、証明書のサブジェクトは適宜変更してください。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">-</span><span class="n">p</span> <span class="n">myCA</span>
-</pre></div>
-</div>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">myCA</span>
-</pre></div>
-</div>
-<p>認証局の秘密鍵用のディレクトリを作って鍵を生成します。4096bitのRSAにしています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">private</span>
-</pre></div>
-</div>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">out</span> <span class="n">private</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> <span class="mi">4096</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>認証局の秘密鍵の内容を確認するには以下のコマンドを実行します。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">-</span><span class="ow">in</span> <span class="n">private</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">text</span>
-</pre></div>
-</div>
-</div>
-<p>上で生成した秘密鍵を使って認証局の自己証明書を作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">new</span> <span class="o">-</span><span class="n">sha256</span> <span class="o">-</span><span class="n">x509</span> <span class="o">-</span><span class="n">key</span> <span class="n">private</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> \
-     <span class="o">-</span><span class="n">days</span> <span class="mi">365</span> \
-     <span class="o">-</span><span class="n">subj</span> <span class="s2">&quot;/C=JP/ST=Osaka/L=Osaka City/O=Example, Inc./CN=my-ca.example.com&quot;</span> \
-     <span class="o">-</span><span class="n">out</span> <span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">crt</span><span class="o">.</span><span class="n">pem</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>認証局の証明書の内容を確認するには以下のコマンドを実行します。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="ow">in</span> <span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">crt</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">text</span>
-</pre></div>
-</div>
-</div>
-<p>認証局用の設定ファイル <code class="code docutils literal notranslate"><span class="pre">my-ca.cnf</span></code> を作成します。
-メッセージダイジェストのアルゴリズムはsha256にしています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="o">&lt;&lt;</span><span class="s1">&#39;EOF&#39;</span> <span class="o">&gt;</span> <span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">cnf</span>
-<span class="c1"># we use &#39;ca&#39; as the default section because we&#39;re usign the ca command</span>
-<span class="p">[</span> <span class="n">ca</span> <span class="p">]</span>
-<span class="n">default_ca</span> <span class="o">=</span> <span class="n">my_ca</span>
-
-<span class="p">[</span> <span class="n">my_ca</span> <span class="p">]</span>
-<span class="c1">#  a text file containing the next serial number to use in hex. Mandatory.</span>
-<span class="c1">#  This file must be present and contain a valid serial number.</span>
-<span class="n">serial</span> <span class="o">=</span> <span class="o">./</span><span class="n">serial</span>
-
-<span class="c1"># the text database file to use. Mandatory. This file must be present though</span>
-<span class="c1"># initially it will be empty.</span>
-<span class="n">database</span> <span class="o">=</span> <span class="o">./</span><span class="n">index</span><span class="o">.</span><span class="n">txt</span>
-
-<span class="c1"># specifies the directory where new certificates will be placed. Mandatory.</span>
-<span class="n">new_certs_dir</span> <span class="o">=</span> <span class="o">./</span><span class="n">newcerts</span>
-
-<span class="c1"># the file containing the CA certificate. Mandatory</span>
-<span class="n">certificate</span> <span class="o">=</span> <span class="o">./</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">crt</span><span class="o">.</span><span class="n">pem</span>
-
-<span class="c1"># the file contaning the CA private key. Mandatory</span>
-<span class="n">private_key</span> <span class="o">=</span> <span class="o">./</span><span class="n">private</span><span class="o">/</span><span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span>
-
-<span class="c1"># the message digest algorithm. Remember to not use MD5</span>
-<span class="n">default_md</span> <span class="o">=</span> <span class="n">sha256</span>
-
-<span class="c1"># for how many days will the signed certificate be valid</span>
-<span class="n">default_days</span> <span class="o">=</span> <span class="mi">365</span>
-
-<span class="c1"># a section with a set of variables corresponding to DN fields</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">my_policy</span>
-
-<span class="p">[</span> <span class="n">my_policy</span> <span class="p">]</span>
-<span class="c1"># if the value is &quot;match&quot; then the field value must match the same field in the</span>
-<span class="c1"># CA certificate. If the value is &quot;supplied&quot; then it must be present.</span>
-<span class="c1"># Optional means it may be present. Any fields not mentioned are silently</span>
-<span class="c1"># deleted.</span>
-<span class="n">countryName</span> <span class="o">=</span> <span class="n">match</span>
-<span class="n">stateOrProvinceName</span> <span class="o">=</span> <span class="n">supplied</span>
-<span class="n">organizationName</span> <span class="o">=</span> <span class="n">supplied</span>
-<span class="n">commonName</span> <span class="o">=</span> <span class="n">supplied</span>
-<span class="n">organizationalUnitName</span> <span class="o">=</span> <span class="n">optional</span>
-<span class="n">commonName</span> <span class="o">=</span> <span class="n">supplied</span>
-<span class="n">EOF</span>
-</pre></div>
-</div>
-<p>認証局の動作に必要なファイルとディレクトリを作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="n">newcerts</span>
-</pre></div>
-</div>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">touch</span> <span class="n">index</span><span class="o">.</span><span class="n">txt</span>
-</pre></div>
-</div>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s1">&#39;unique_subject = yes&#39;</span> <span class="o">&gt;</span> <span class="n">index</span><span class="o">.</span><span class="n">txt</span><span class="o">.</span><span class="n">attr</span>
-</pre></div>
-</div>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="s1">&#39;01&#39;</span> <span class="o">&gt;</span> <span class="n">serial</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="id2">
-<h2>自己認証局を使ってサーバ証明書を発行<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
-<p>まず上記で作成した <code class="code docutils literal notranslate"><span class="pre">myCA</span></code> ディレクトリに移動しておきます。</p>
-<p>まずサーバ証明書を保存する作業ディレクトリを作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mkdir</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span>
-</pre></div>
-</div>
-<p>サーバの秘密鍵を生成します。4096bitのRSAにしています。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">genrsa</span> <span class="o">-</span><span class="n">out</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> <span class="mi">4096</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>サーバの秘密鍵の内容を確認するには以下のコマンドを実行します。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">-</span><span class="ow">in</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">text</span>
-</pre></div>
-</div>
-</div>
-<p>自己認証局に証明書の署名を依頼するためにCSR (Certificate Siging Request) を作成します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">new</span> <span class="o">-</span><span class="n">key</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">key</span><span class="o">.</span><span class="n">pem</span> \
-  <span class="o">-</span><span class="n">sha256</span> \
-  <span class="o">-</span><span class="n">subj</span> <span class="s2">&quot;/C=JP/ST=Osaka/L=Osaka City/O=Example, Inc./CN=sv01.example.com&quot;</span> \
-  <span class="o">-</span><span class="n">out</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">csr</span><span class="o">.</span><span class="n">pem</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>CSRの内容を確認するには以下のコマンドを実行します。</p>
-<div class="code console last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="ow">in</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">csr</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">text</span>
-</pre></div>
-</div>
-</div>
-<p>自己認証局で証明書を発行し署名します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">ca</span> <span class="o">-</span><span class="n">batch</span> <span class="o">-</span><span class="n">config</span> <span class="n">my</span><span class="o">-</span><span class="n">ca</span><span class="o">.</span><span class="n">cnf</span> \
-  <span class="o">-</span><span class="n">days</span> <span class="mi">365</span> \
-  <span class="o">-</span><span class="n">notext</span> \
-  <span class="o">-</span><span class="n">out</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">crt</span><span class="o">.</span><span class="n">pem</span> \
-  <span class="o">-</span><span class="n">infiles</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">csr</span><span class="o">.</span><span class="n">pem</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="first admonition-title">注釈</p>
-<p>証明書の内容を確認するには以下のコマンドを実行します。</p>
-<div class="code console highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="ow">in</span> <span class="o">../</span><span class="n">server</span><span class="o">-</span><span class="n">certs</span><span class="o">/</span><span class="n">sv01</span><span class="o">.</span><span class="n">example</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">crt</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">text</span>
-</pre></div>
-</div>
-<p>また証明書を発行すると <code class="code docutils literal notranslate"><span class="pre">serial</span></code> ファイル内のシリアル番号が1増加され、<code class="code docutils literal notranslate"><span class="pre">index.txt</span></code> というファイルに発行したときのサブジェクト（<code class="code docutils literal notranslate"><span class="pre">-subj</span></code> オプションで指定した値）と発行時のシリアル番号などが記録されます。</p>
-<p class="last">上記で <code class="code docutils literal notranslate"><span class="pre">index.txt.attr</span></code> に <code class="code docutils literal notranslate"><span class="pre">unique_subject</span> <span class="pre">=</span> <span class="pre">yes</span></code> と指定したので、同じサブジェクトで再度証明書を発行しようとすると <code class="code docutils literal notranslate"><span class="pre">index.txt</span></code> の中身をチェックしてエラーが出るようになります。</p>
-</div>
-</div>
-</div>
-
-
-          </div>
-        </div>
-      </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
-             >索引</a></li>
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="run-apache-trafficserver-tests-on-docker.html" title="DockerでApache Traffic Serverのテストを実行する"
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="ipoe-on-ubuntu.html" title="UbuntuでIPoE"
-             >前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+             accesskey="P">前へ</a> |</li>
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2018, Hiroaki Nakamura.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Hiroaki Nakamura.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1 で生成しました。
     </div>
   </body>
 </html>

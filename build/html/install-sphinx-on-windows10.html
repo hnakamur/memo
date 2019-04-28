@@ -2,82 +2,44 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Windows 10にSphinxをインストール &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
-    <link rel="stylesheet" href="_static/solar.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <script type="text/javascript" src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
     <link rel="next" title="UbuntuでIPoE" href="ipoe-on-ubuntu.html" />
-    <link rel="prev" title="DockerでSphinxを使う" href="use-sphinx-with-docker.html" /><link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
-<link href="_static/solarized-dark.css" rel="stylesheet">
+    <link rel="prev" title="DockerでSphinxを使う" href="use-sphinx-with-docker.html" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <link rel="shortcut icon" type="image/png" href="_static/favicon.png" />
+    <meta name="viewport" content="width=device-width,initial-scale=0.8">
+    
+    
+
   </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="総合索引"
-             accesskey="I">索引</a></li>
-        <li class="right" >
-          <a href="ipoe-on-ubuntu.html" title="UbuntuでIPoE"
-             accesskey="N">次へ</a> |</li>
-        <li class="right" >
-          <a href="use-sphinx-with-docker.html" title="DockerでSphinxを使う"
-             accesskey="P">前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+        <li class="responsive-menu"><a href="#sidebar-anchor" title="Navigation">&#9776;</a></li>
+        <li><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
       </ul>
     </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Windows 10にSphinxをインストール</a><ul>
-<li><a class="reference internal" href="#chocolatey">Chocolateyのインストール</a></li>
-<li><a class="reference internal" href="#python-make-plantuml">Python, make, PlantUMLのインストール</a></li>
-<li><a class="reference internal" href="#sphinxpip">Sphinxなどのパッケージをpipでインストール</a></li>
-<li><a class="reference internal" href="#noto-sans-cjk-jp">Noto Sans CJK jpフォントのダウンロード</a></li>
-<li><a class="reference internal" href="#id1">自動ビルドの実行</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>前のトピックへ</h4>
-  <p class="topless"><a href="use-sphinx-with-docker.html"
-                        title="前の章へ">DockerでSphinxを使う</a></p>
-  <h4>次のトピックへ</h4>
-  <p class="topless"><a href="ipoe-on-ubuntu.html"
-                        title="次の章へ">UbuntuでIPoE</a></p>
-  <div role="note" aria-label="source link">
-    <h3>このページ</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/install-sphinx-on-windows10.rst.txt"
-            rel="nofollow">ソースコードを表示</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>クイック検索</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="検索" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
+    
+  
 
     <div class="document">
       <div class="documentwrapper">
@@ -87,14 +49,11 @@
   <div class="section" id="windows-10sphinx">
 <h1>Windows 10にSphinxをインストール<a class="headerlink" href="#windows-10sphinx" title="このヘッドラインへのパーマリンク">¶</a></h1>
 <ul class="simple">
-<li><table class="first docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">更新日:</th><td class="field-body">2018-11-19</td>
-</tr>
-</tbody>
-</table>
+<li><dl class="field-list simple">
+<dt class="field-odd">更新日</dt>
+<dd class="field-odd"><p>2018-11-19</p>
+</dd>
+</dl>
 </li>
 </ul>
 <div class="toctree-wrapper compound">
@@ -103,7 +62,7 @@
 <h2>Chocolateyのインストール<a class="headerlink" href="#chocolatey" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p><a class="reference external" href="https://chocolatey.org/docs/installation#installing-chocolatey">Installing Chocolatey</a> の手順に従ってChocolateyをインストールします。
 管理者権限でPowerShellを起動して以下のコマンドを実行します（コマンドが長くて折り返して表示されているかもしれませんが、一行のコマンドです）。</p>
-<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span><span class="p">;</span> <span class="n">iex</span> <span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">Bypass</span> <span class="n">-Scope</span> <span class="k">Process</span> <span class="n">-Force</span><span class="p">;</span> <span class="nb">iex </span><span class="p">((</span><span class="nb">New-Object</span> <span class="n">System</span><span class="p">.</span><span class="n">Net</span><span class="p">.</span><span class="n">WebClient</span><span class="p">).</span><span class="n">DownloadString</span><span class="p">(</span><span class="s1">&#39;https://chocolatey.org/install.ps1&#39;</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>PowerShellの実行ポリシーをUndefinedに変更します。</p>
@@ -111,14 +70,14 @@
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">注釈</p>
+<p class="admonition-title">注釈</p>
 <p>PowerShellの実行ポリシーの確認</p>
 <p>変更後の状態は以下のコマンドで確認できます。</p>
 <div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="nb">Set-ExecutionPolicy</span> <span class="n">-List</span>
 </pre></div>
 </div>
 <p>実行ポリシー確認の実行例です。</p>
-<div class="last highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\windows\system32&gt; Get-ExecutionPolicy -List</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\windows\system32&gt; Get-ExecutionPolicy -List</span>
 
 <span class="go">        Scope ExecutionPolicy</span>
 <span class="go">        ----- ---------------</span>
@@ -161,7 +120,7 @@
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">注釈</p>
+<p class="admonition-title">注釈</p>
 <p>pipのアップグレード</p>
 <p>Linuxなどでは <code class="code docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span></code> で良いのですが、以下のエラーが出ました。</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">PS C:\WINDOWS\system32&gt; pip install --upgrade pip</span>
@@ -171,7 +130,7 @@
 <span class="go">You should consider upgrading via the &#39;python -m pip install --upgrade pip&#39; command.</span>
 </pre></div>
 </div>
-<p class="last">上のメッセージの通り以下のように実行すればOKでした。</p>
+<p>上のメッセージの通り以下のように実行すればOKでした。</p>
 </div>
 </div>
 <div class="section" id="sphinxpip">
@@ -213,26 +172,68 @@ Sphinxで記述している文書のソースファイルを編集・保存し�
           </div>
         </div>
       </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+    <a id="sidebar-anchor"></a>
+    
+
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Windows 10にSphinxをインストール</a><ul>
+<li><a class="reference internal" href="#chocolatey">Chocolateyのインストール</a></li>
+<li><a class="reference internal" href="#python-make-plantuml">Python, make, PlantUMLのインストール</a></li>
+<li><a class="reference internal" href="#sphinxpip">Sphinxなどのパッケージをpipでインストール</a></li>
+<li><a class="reference internal" href="#noto-sans-cjk-jp">Noto Sans CJK jpフォントのダウンロード</a></li>
+<li><a class="reference internal" href="#id1">自動ビルドの実行</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="use-sphinx-with-docker.html"
+                        title="前の章へ">DockerでSphinxを使う</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="ipoe-on-ubuntu.html"
+                        title="次の章へ">UbuntuでIPoE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/install-sphinx-on-windows10.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
       <div class="clearer"></div>
     </div>
-    <div class="related" role="navigation" aria-label="related navigation">
+    <div class="related">
       <h3>ナビゲーション</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="総合索引"
-             >索引</a></li>
+             accesskey="I">索引</a></li>
         <li class="right" >
           <a href="ipoe-on-ubuntu.html" title="UbuntuでIPoE"
-             >次へ</a> |</li>
+             accesskey="N">次へ</a> |</li>
         <li class="right" >
           <a href="use-sphinx-with-docker.html" title="DockerでSphinxを使う"
-             >前へ</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">hnakamur&#39;s tech memo  ドキュメント</a> &#187;</li> 
+             accesskey="P">前へ</a> |</li>
       </ul>
     </div>
-    <div class="footer">
-        &copy; Copyright 2018, Hiroaki Nakamura.
-    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.8.2.Theme is <a href="http://github.com/vimalkvn/solar-theme">Solar</a>
+
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2018, Hiroaki Nakamura.
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1 で生成しました。
     </div>
   </body>
 </html>
