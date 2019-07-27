@@ -57,7 +57,7 @@
 </li>
 <li><dl class="field-list simple">
 <dt class="field-odd">更新日</dt>
-<dd class="field-odd"><p>2018-12-04</p>
+<dd class="field-odd"><p>2019-07-27</p>
 </dd>
 </dl>
 </li>
@@ -213,7 +213,7 @@ WiFiルータはブリッジモードを使用しています。</p>
 </dl>
 </li>
 </ul>
-<table class="docutils align-center">
+<table class="docutils align-default">
 <colgroup>
 <col style="width: 50%" />
 <col style="width: 50%" />
@@ -283,34 +283,24 @@ net.ipv4.ip_forward=1
 <h2>IPoEの設定<a class="headerlink" href="#ipoe" title="このヘッドラインへのパーマリンク">¶</a></h2>
 <p>上記のように配線した状態で <code class="code docutils literal notranslate"><span class="pre">ip</span> <span class="pre">a</span></code> でIPアドレスを確認するとIPv6のグローバルアドレスがついていました。</p>
 <p><code class="code docutils literal notranslate"><span class="pre">ip</span> <span class="pre">-6</span> <span class="pre">tunnel</span> <span class="pre">add</span></code> コマンドでmodeにipip6（IPv4 over IPv6トンネル）を指定することでトンネルを作成します。以下のようなシェルスクリプト <code class="code docutils literal notranslate"><span class="pre">/usr/local/sbin/ipoe.sh</span></code> を作成しました。</p>
+<p>IPv6グローバルIPアドレスが付与されるまでの待つコマンドを改良しました。またデフォルトルートの切り替えをip route deleteしてaddしてたのをchangeを使うように改善しました（2019年7月27追記）。</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh -x</span>
 <span class="nb">set</span> -eu
 
 <span class="c1">#. /etc/default/ipoe</span>
 
-<span class="nv">tunnel_name</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="nv">wan_interface</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WAN_INTERFACE</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="nv">gateway_addr</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">GATEWAY_ADDR</span><span class="si">}</span><span class="s2">&quot;</span>
-
 <span class="k">case</span> <span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span> in
 start<span class="o">)</span>
-  <span class="k">while</span> :<span class="p">;</span> <span class="k">do</span>
-    <span class="nv">local_addr</span><span class="o">=</span><span class="k">$(</span>/sbin/ip a <span class="p">|</span> /usr/bin/awk <span class="s1">&#39;/mngtmpaddr/ {print substr($2, 1, index($2, &quot;/&quot;) - 1); exit}&#39;</span><span class="k">)</span>
-    <span class="k">if</span> <span class="o">[</span> -n <span class="s2">&quot;</span><span class="nv">$local_addr</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
-      <span class="nb">break</span>
-    <span class="k">fi</span>
-
-    sleep <span class="m">1</span>
-  <span class="k">done</span>
-  /sbin/ip -6 tunnel add <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span> mode ipip6 remote <span class="s2">&quot;</span><span class="si">${</span><span class="nv">gateway_addr</span><span class="si">}</span><span class="s2">&quot;</span> <span class="nb">local</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">local_addr</span><span class="si">}</span><span class="s2">&quot;</span> dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">wan_interface</span><span class="si">}</span><span class="s2">&quot;</span>
-  /sbin/ip link <span class="nb">set</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span> up
-  /sbin/ip route delete default <span class="o">||</span> :
-  /sbin/ip route add default dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span>
+  <span class="k">while</span> ! /sbin/ip -br a s dev <span class="si">${</span><span class="nv">WAN_INTERFACE</span><span class="si">}</span> mngtmpaddr <span class="p">|</span> /bin/grep -q UP<span class="p">;</span> <span class="k">do</span> sleep <span class="m">1</span><span class="p">;</span> <span class="k">done</span>
+  <span class="nv">local_addr</span><span class="o">=</span><span class="k">$(</span>/sbin/ip -br a s dev <span class="si">${</span><span class="nv">WAN_INTERFACE</span><span class="si">}</span> mngtmpaddr <span class="p">|</span> /usr/bin/awk <span class="s1">&#39;{ sub(&quot;/.*&quot;, &quot;&quot;, $3); print $3 }&#39;</span><span class="k">)</span>
+  /sbin/ip -6 tunnel add <span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span> mode ipip6 remote <span class="s2">&quot;</span><span class="si">${</span><span class="nv">GATEWAY_ADDR</span><span class="si">}</span><span class="s2">&quot;</span> <span class="nb">local</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">local_addr</span><span class="si">}</span><span class="s2">&quot;</span> dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">WAN_INTERFACE</span><span class="si">}</span><span class="s2">&quot;</span>
+  /sbin/ip link <span class="nb">set</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span> up
+  /sbin/ip route change default dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
   <span class="p">;;</span>
 stop<span class="o">)</span>
-  /sbin/ip link <span class="nb">set</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span> down
-  /sbin/ip -6 tunnel del <span class="s2">&quot;</span><span class="si">${</span><span class="nv">tunnel_name</span><span class="si">}</span><span class="s2">&quot;</span>
-  /sbin/ip route add default dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">wan_interface</span><span class="si">}</span><span class="s2">&quot;</span>
+  /sbin/ip route change default dev <span class="s2">&quot;</span><span class="si">${</span><span class="nv">WAN_INTERFACE</span><span class="si">}</span><span class="s2">&quot;</span>
+  /sbin/ip link <span class="nb">set</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span> down
+  /sbin/ip -6 tunnel del <span class="s2">&quot;</span><span class="si">${</span><span class="nv">TUNNEL_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
   <span class="p">;;</span>
 *<span class="o">)</span>
   <span class="nb">echo</span> <span class="s2">&quot;Usage: ipoe.sh (start|stop)&quot;</span>
@@ -646,10 +636,10 @@ subnet 192.168.2.0 netmask 255.255.255.0 {
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>クイック検索</h3>
+  <h3 id="searchlabel">クイック検索</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="検索" />
     </form>
     </div>
@@ -676,7 +666,7 @@ subnet 192.168.2.0 netmask 255.255.255.0 {
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Hiroaki Nakamura.
-      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.0.1 で生成しました。
+      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2 で生成しました。
     </div>
   </body>
 </html>

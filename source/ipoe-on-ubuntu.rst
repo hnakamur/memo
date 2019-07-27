@@ -3,7 +3,7 @@ UbuntuでIPoE
 ==============
 
 * :作成日: 2018-12-01
-* :更新日: 2018-12-04
+* :更新日: 2019-07-27
 
 はじめに
 ========
@@ -142,36 +142,27 @@ IPoEの設定
 
 :code:`ip -6 tunnel add` コマンドでmodeにipip6（IPv4 over IPv6トンネル）を指定することでトンネルを作成します。以下のようなシェルスクリプト :code:`/usr/local/sbin/ipoe.sh` を作成しました。
 
+IPv6グローバルIPアドレスが付与されるまでの待つコマンドを改良しました。またデフォルトルートの切り替えをip route deleteしてaddしてたのをchangeを使うように改善しました（2019年7月27追記）。
+
 .. code:: sh
 
    #!/bin/sh -x
    set -eu
-
+   
    #. /etc/default/ipoe
-
-   tunnel_name="${TUNNEL_NAME}"
-   wan_interface="${WAN_INTERFACE}"
-   gateway_addr="${GATEWAY_ADDR}"
-
+   
    case "$1" in
    start)
-     while :; do
-       local_addr=$(/sbin/ip a | /usr/bin/awk '/mngtmpaddr/ {print substr($2, 1, index($2, "/") - 1); exit}')
-       if [ -n "$local_addr" ]; then
-	 break
-       fi
-
-       sleep 1
-     done
-     /sbin/ip -6 tunnel add "${tunnel_name}" mode ipip6 remote "${gateway_addr}" local "${local_addr}" dev "${wan_interface}"
-     /sbin/ip link set "${tunnel_name}" up
-     /sbin/ip route delete default || :
-     /sbin/ip route add default dev "${tunnel_name}"
+     while ! /sbin/ip -br a s dev ${WAN_INTERFACE} mngtmpaddr | /bin/grep -q UP; do sleep 1; done
+     local_addr=$(/sbin/ip -br a s dev ${WAN_INTERFACE} mngtmpaddr | /usr/bin/awk '{ sub("/.*", "", $3); print $3 }')
+     /sbin/ip -6 tunnel add "${TUNNEL_NAME}" mode ipip6 remote "${GATEWAY_ADDR}" local "${local_addr}" dev "${WAN_INTERFACE}"
+     /sbin/ip link set "${TUNNEL_NAME}" up
+     /sbin/ip route change default dev "${TUNNEL_NAME}"
      ;;
    stop)
-     /sbin/ip link set "${tunnel_name}" down
-     /sbin/ip -6 tunnel del "${tunnel_name}"
-     /sbin/ip route add default dev "${wan_interface}"
+     /sbin/ip route change default dev "${WAN_INTERFACE}"
+     /sbin/ip link set "${TUNNEL_NAME}" down
+     /sbin/ip -6 tunnel del "${TUNNEL_NAME}"
      ;;
    *)
      echo "Usage: ipoe.sh (start|stop)"
