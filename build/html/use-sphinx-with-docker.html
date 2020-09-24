@@ -1,24 +1,25 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+<html lang="ja">
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DockerでSphinxを使う &#8212; hnakamur&#39;s tech memo  ドキュメント</title>
     <link rel="stylesheet" href="_static/pydoctheme.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
     
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
-    <script type="text/javascript" src="_static/copybutton.js"></script>
-    <script type="text/javascript" src="_static/translations.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/translations.js"></script>
     
-    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script src="_static/sidebar.js"></script>
     
     <link rel="index" title="索引" href="genindex.html" />
     <link rel="search" title="検索" href="search.html" />
@@ -51,7 +52,7 @@
 <ul class="simple">
 <li><dl class="field-list simple">
 <dt class="field-odd">更新日</dt>
-<dd class="field-odd"><p>2018-12-01</p>
+<dd class="field-odd"><p>2020-09-25</p>
 </dd>
 </dl>
 </li>
@@ -137,12 +138,12 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id6">
 <h3>Linux<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ドキュメントプロジェクトを作成し、ターミナルを開いてそこに移動し、以下のコマンドを実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart</span>
 </pre></div>
 </div>
 <p>プロジェクト名、著者名、リリース番号を聞かれますので入力します。</p>
 <p>あるいは以下のようにオプションで指定することも可能です。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart -p &quot;YourProjectName&quot; -a &quot;John Doe &lt;john.doe@example.com&gt;&quot; -r 1.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart -p &quot;YourProjectName&quot; -a &quot;John Doe &lt;john.doe@example.com&gt;&quot; -r 1.0</span>
 </pre></div>
 </div>
 </div>
@@ -175,11 +176,11 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id10">
 <h3>Linux<a class="headerlink" href="#id10" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ビルドには以下のコマンドを実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx make html</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx make html</span>
 </pre></div>
 </div>
 <p>あるいは以下のコマンドでもビルドできます。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-build -b html source build</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-build -b html source build</span>
 </pre></div>
 </div>
 </div>
@@ -190,7 +191,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id12">
 <h3>Windows<a class="headerlink" href="#id12" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>コマンドプロンプトを開いてドキュメントプロジェクトのディレクトリに移動し以下のコマンド実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;%cd%:/documents&quot; -p 8000:8000 hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;%cd%:/documents&quot; -p 8000:8000 hnakamur/sphinx sphinx-autobuild --host 0.0.0.0 source build/html</span>
 </pre></div>
 </div>
 <p>ブラウザで <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は <code class="code docutils literal notranslate"><span class="pre">-p</span></code> オプションのコロンより前の番号を変えてください。</p>
@@ -209,7 +210,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id13">
 <h3>macOS<a class="headerlink" href="#id13" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ターミナルを開いてドキュメントプロジェクトのディレクトリに移動し以下のコマンド実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -p 8000:8000 hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -p 8000:8000 hnakamur/sphinx sphinx-autobuild --host 0.0.0.0 source build/html</span>
 </pre></div>
 </div>
 <p>ブラウザで <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は <code class="code docutils literal notranslate"><span class="pre">-p</span></code> オプションのコロンより前の番号を変えてください。</p>
@@ -217,7 +218,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 <div class="section" id="id14">
 <h3>Linux<a class="headerlink" href="#id14" title="このヘッドラインへのパーマリンク">¶</a></h3>
 <p>ターミナルを開いてドキュメントプロジェクトのディレクトリに移動し以下のコマンド実行します。</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -p 8000:8000 -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">docker run --rm -it -v &quot;$PWD:/documents&quot; -p 8000:8000 -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-autobuild --host 0.0.0.0 source build/html</span>
 </pre></div>
 </div>
 <p>ブラウザで <a class="reference external" href="http://127.0.0.1:8000">http://127.0.0.1:8000</a> を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は <code class="code docutils literal notranslate"><span class="pre">-p</span></code> オプションのコロンより前の番号を変えてください。</p>
@@ -235,6 +236,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 </div>
 
 
+            <div class="clearer"></div>
           </div>
         </div>
       </div>
@@ -300,7 +302,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -322,7 +324,7 @@ blockdiagやPlantUMLのSphinx拡張を組み込み、テーマは <a class="refe
 
     <div class="footer" role="contentinfo">
         &#169; Copyright 2018, Hiroaki Nakamura.
-      このドキュメントは <a href="http://sphinx-doc.org/">Sphinx</a> 2.1.2 で生成しました。
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.2.1.
     </div>
   </body>
 </html>

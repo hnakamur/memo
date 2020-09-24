@@ -2,7 +2,7 @@
 DockerでSphinxを使う
 ======================
 
-* :更新日: 2018-12-01
+* :更新日: 2020-09-25
 
 はじめに
 ===========================
@@ -112,7 +112,7 @@ Linux
 
 .. code-block:: console
 
-   docker run --rm -it -v "$PWD:/documents" -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart
+   docker run --rm -it -v "$PWD:/documents" -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart
 
 プロジェクト名、著者名、リリース番号を聞かれますので入力します。
 
@@ -120,7 +120,7 @@ Linux
 
 .. code-block:: console
 
-   docker run --rm -it -v "$PWD:/documents" -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart -p "YourProjectName" -a "John Doe <john.doe@example.com>" -r 1.0
+   docker run --rm -it -v "$PWD:/documents" -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx my-sphinx-quickstart -p "YourProjectName" -a "John Doe <john.doe@example.com>" -r 1.0
 
 ドキュメントのビルド
 ======================================
@@ -165,13 +165,13 @@ Linux
 
 .. code-block:: console
 
-   docker run --rm -it -v "$PWD:/documents" -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx make html
+   docker run --rm -it -v "$PWD:/documents" -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx make html
 
 あるいは以下のコマンドでもビルドできます。
 
 .. code-block:: console
 
-   docker run --rm -it -v "$PWD:/documents" -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-build -b html source build
+   docker run --rm -it -v "$PWD:/documents" -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-build -b html source build
 
 
 ドキュメントを編集しつつ自動ビルド
@@ -186,7 +186,7 @@ Windows
 
 .. code-block:: console
 
-   docker run --rm -it -v "%cd%:/documents" -p 8000:8000 hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0
+   docker run --rm -it -v "%cd%:/documents" -p 8000:8000 hnakamur/sphinx sphinx-autobuild --host 0.0.0.0 source build/html
 
 ブラウザで http://127.0.0.1:8000 を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は :code:`-p` オプションのコロンより前の番号を変えてください。
 
@@ -213,7 +213,7 @@ macOS
 
 .. code-block:: console
 
-   docker run --rm -it -v "$PWD:/documents" -p 8000:8000 hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0
+   docker run --rm -it -v "$PWD:/documents" -p 8000:8000 hnakamur/sphinx sphinx-autobuild --host 0.0.0.0 source build/html
 
 ブラウザで http://127.0.0.1:8000 を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は :code:`-p` オプションのコロンより前の番号を変えてください。
 
@@ -224,7 +224,7 @@ Linux
 
 .. code-block:: console
 
-   docker run --rm -it -v "$PWD:/documents" -p 8000:8000 -e USE_GOSU=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-autobuild source build/html -H 0.0.0.0
+   docker run --rm -it -v "$PWD:/documents" -p 8000:8000 -e SWITCH_USER=1 -e LOCAL_UID=$(id -u $USER) -e LOCAL_GID=$(id -g $USER) hnakamur/sphinx sphinx-autobuild --host 0.0.0.0 source build/html
 
 ブラウザで http://127.0.0.1:8000 を開くとビルドされたドキュメントを確認できます。ポートを変えたい場合は :code:`-p` オプションのコロンより前の番号を変えてください。
 
